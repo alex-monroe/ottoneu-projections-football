@@ -306,17 +306,23 @@ ENVIRONMENT=development
 
 ## Deployment
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions to:
-- Render.com (recommended)
-- Railway.app
-- Fly.io
-- Vercel (not recommended for FastAPI)
+This project is deployed to **Fly.io** using Docker.
 
-Quick deploy to Render:
-1. Push code to GitHub
-2. Connect repository to Render
-3. Set environment variables (SUPABASE_URL, SUPABASE_KEY)
-4. Deploy automatically uses `render.yaml` configuration
+Quick deploy:
+```bash
+# First time setup
+flyctl launch
+
+# Deploy updates
+flyctl deploy
+```
+
+Configuration:
+- See `fly.toml` for Fly.io configuration
+- See `Dockerfile` for build configuration
+- Set secrets: `flyctl secrets set SUPABASE_URL=... SUPABASE_KEY=...`
+
+Alternative platforms: See [DEPLOYMENT.md](DEPLOYMENT.md) for Railway.app, Render.com, etc.
 
 ## Contributing
 
@@ -334,12 +340,12 @@ Quick deploy to Render:
 4. **Make your changes** following our code quality standards
 5. **Run local checks before pushing**:
    ```bash
-   pytest                    # All 77 tests must pass
+   pytest                    # All 82 tests must pass
    black src/ tests/         # Format code
    ruff check src/ tests/    # Lint code
    ```
 6. **Push and create PR**: GitHub Actions will automatically run CI checks
-7. **Merge when ready**: Render.com will auto-deploy to production
+7. **Merge when ready**, then deploy: `flyctl deploy`
 
 ### CI/CD Pipeline
 
@@ -349,7 +355,7 @@ Every pull request automatically runs:
 - ✅ Formatting (Black)
 - ✅ Build verification
 
-After merging, Render.com deploys to production in ~2-3 minutes.
+After merging, deploy to Fly.io with `flyctl deploy` (~2-3 minutes).
 
 **See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed workflow, code standards, and testing requirements.**
 

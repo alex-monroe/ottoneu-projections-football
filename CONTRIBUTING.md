@@ -124,7 +124,7 @@ All changes must go through pull requests. Direct pushes to `main` are blocked.
 
 7. **Wait for CI checks**
    - GitHub Actions will automatically run:
-     - ✅ Tests (77 tests must pass)
+     - ✅ Tests (82 tests must pass)
      - ✅ Linting (Ruff)
      - ✅ Formatting (Black)
      - ✅ Build verification
@@ -133,7 +133,7 @@ All changes must go through pull requests. Direct pushes to `main` are blocked.
 
 8. **Merge when ready**
    - Once all checks pass, click "Merge pull request"
-   - Render.com will automatically deploy to production
+   - Deploy to Fly.io manually using: `flyctl deploy`
    - Deployment takes ~2-3 minutes
 
 ---
