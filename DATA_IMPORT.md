@@ -6,6 +6,21 @@ The system loads historical NFL player statistics from public data sources:
 - **Primary**: NFLVerse (via nfl-data-py Python library)
 - **Backup**: Fantasy Football Data Pros CSV files from GitHub
 
+## Check Import Status
+
+**Before importing**, check what's already been imported:
+
+```bash
+# Update and view the import ledger
+./update-ledger.sh
+cat IMPORT_LEDGER.md
+```
+
+The ledger shows:
+- ✅ Which weeks have been imported
+- ⏳ Which weeks are still pending
+- Total players and projections in the database
+
 ## Quick Start
 
 ### Import a Single Week

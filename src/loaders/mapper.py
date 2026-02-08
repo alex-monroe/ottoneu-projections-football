@@ -135,11 +135,20 @@ class DataMapper:
                 unique_players = mapped_df.drop_duplicates(subset=['name', 'position'])
 
                 for _, row in unique_players.iterrows():
+                    # Try to convert espn_id to int, but skip if it's not a valid integer
+                    espn_id = None
+                    if pd.notna(row.get('espn_id')):
+                        try:
+                            espn_id = int(row.get('espn_id'))
+                        except (ValueError, TypeError):
+                            # espn_id is not a valid integer, skip it
+                            pass
+
                     player_data = {
                         'name': str(row.get('name', '')),
                         'position': str(row.get('position', '')),
                         'team': str(row.get('team', '')) if pd.notna(row.get('team')) else None,
-                        'espn_id': int(row.get('espn_id')) if pd.notna(row.get('espn_id')) else None,
+                        'espn_id': espn_id,
                     }
 
                     # Only add if we have minimum required fields

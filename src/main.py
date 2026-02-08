@@ -44,11 +44,12 @@ async def health_check():
 
 # Import and include routers
 from src.api.loaders import router as loaders_router
-app.include_router(loaders_router, prefix="/api", tags=["api"])
+from src.api.projections import router as projections_router
+from src.dashboard.routes import router as dashboard_router
 
-# Dashboard router will be added in Phase 4
-# from src.dashboard.routes import router as dashboard_router
-# app.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
+app.include_router(loaders_router, prefix="/api", tags=["api"])
+app.include_router(projections_router, prefix="/api", tags=["api"])
+app.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
 
 
 if __name__ == "__main__":

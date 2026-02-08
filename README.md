@@ -18,19 +18,28 @@ A FastAPI-based system for managing NFL fantasy football projections with suppor
 - REST API endpoints for data import
 - 50 comprehensive tests (100% passing)
 
-### 🚧 Phase 3: Scoring System (Next)
-- Calculate fantasy points from raw stats
-- Support PPR, Half-PPR, Standard scoring
-- Custom scoring configurations
+### ✅ Phase 3: Scoring System (Complete)
+- Fantasy points calculator with configurable scoring
+- Support for PPR, Half-PPR, Standard scoring formats
+- Projections API with filtering, sorting, and pagination
+- 60 comprehensive tests (100% passing)
 
-### 📋 Phase 4: Dashboard (Planned)
+### ✅ Phase 4: Dashboard (Complete)
+- Web UI for viewing projections with filters
+- Player detail pages with weekly stats
+- Sortable/filterable tables with Tailwind CSS
+- Error handling and responsive design
+- 64 comprehensive tests (100% passing)
+
+### 📋 Phase 5: Automation (Planned)
 - Web UI for viewing projections
 - Player comparison tools
 - Sortable/filterable tables
 
-### 📋 Phase 5: Automation (Planned)
-- Scheduled weekly data updates
-- Job monitoring and logging
+### 📋 Phase 6: Advanced Features (Planned)
+- Custom projection models
+- Player news integration
+- Trade analyzer
 
 ## Quick Start
 
@@ -86,9 +95,30 @@ curl -X POST "http://localhost:8000/api/loaders/import/season?year=2023&start_we
 
 # Check what data is available
 curl "http://localhost:8000/api/loaders/available-data"
+
+# Update the import ledger to see what's been imported
+./update-ledger.sh
+cat IMPORT_LEDGER.md
 ```
 
 See [DATA_IMPORT.md](DATA_IMPORT.md) for detailed import instructions.
+
+**Import Ledger:** Track import status with `IMPORT_LEDGER.md` - shows which weeks are imported and which are pending. Update it anytime with `./update-ledger.sh`.
+
+### Get Projections with Fantasy Points
+
+```bash
+# Seed standard scoring configurations (PPR, Half-PPR, Standard)
+python scripts/seed_scoring_configs.py
+
+# Get top 20 players for week 1 (PPR scoring)
+curl "http://localhost:8000/api/projections?season=2023&week=1&scoring=PPR%20(Point%20Per%20Reception)&limit=20"
+
+# Get top 10 running backs (Half-PPR)
+curl "http://localhost:8000/api/projections?season=2023&week=1&scoring=Half-PPR&position=RB&limit=10"
+```
+
+See [SCORING_GUIDE.md](SCORING_GUIDE.md) for detailed scoring documentation.
 
 ### Run Tests
 
@@ -206,7 +236,7 @@ All features have comprehensive test coverage:
 - **Unit tests**: Individual components
 - **Integration tests**: API endpoints
 - **Mock fixtures**: External dependencies
-- **Current status**: 50/50 tests passing
+- **Current status**: 64/64 tests passing
 
 ### Environment Variables
 
@@ -256,6 +286,6 @@ For questions or issues:
 
 ---
 
-**Current Version**: Phase 2 Complete
+**Current Version**: Phase 4 Complete
 **Last Updated**: 2026-02-07
-**Status**: ✅ Ready for Phase 3 (Scoring System)
+**Status**: ✅ Ready for Phase 5 (Automation)

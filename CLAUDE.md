@@ -24,7 +24,14 @@ This is a football projections system for Ottoneu fantasy football leagues. Buil
 - ✅ API endpoints for triggering data imports
 - ✅ Comprehensive test suite (50 tests passing)
 
-**Next Phase: Scoring System (calculate fantasy points from raw stats)**
+**Phase 3 Complete: Scoring System**
+- ✅ Fantasy points calculator with configurable scoring formats
+- ✅ Standard scoring configs (PPR, Half-PPR, Standard)
+- ✅ Projections API with filtering, sorting, pagination
+- ✅ 60 comprehensive tests passing (50 loaders + 10 scoring)
+- ✅ Support for custom scoring configurations
+
+**Next Phase: Dashboard (web UI for viewing projections)**
 
 ## Quick Start
 
