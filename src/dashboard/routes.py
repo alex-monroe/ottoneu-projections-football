@@ -20,7 +20,7 @@ async def dashboard_home(
     week: int = Query(default=1, ge=1, le=18),
     scoring: str = Query(default="PPR (Point Per Reception)"),
     position: Optional[str] = Query(default=None),
-    limit: int = Query(default=50, ge=1, le=200),
+    result_limit: int = Query(default=50, ge=1, le=200, alias="limit"),
     supabase: Client = Depends(get_supabase_client)
 ):
     """
@@ -53,7 +53,7 @@ async def dashboard_home(
             position=position,
             sort_by="fantasy_points",
             order="desc",
-            limit=limit,
+            limit=result_limit,
             supabase=supabase
         )
 
