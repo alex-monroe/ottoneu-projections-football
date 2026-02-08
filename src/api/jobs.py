@@ -10,7 +10,7 @@ from src.database.models import (
     JobStatus,
     JobExecution,
     JobTriggerRequest,
-    ImportResultModel
+    ImportResultModel,
 )
 from src.config import get_supabase_client
 from src.jobs.scheduler import JobScheduler
@@ -30,17 +30,14 @@ def set_scheduler(scheduler: JobScheduler):
 def get_scheduler() -> JobScheduler:
     """Dependency to get the scheduler instance."""
     if _scheduler is None:
-        raise HTTPException(
-            status_code=503,
-            detail="Job scheduler not initialized"
-        )
+        raise HTTPException(status_code=503, detail="Job scheduler not initialized")
     return _scheduler
 
 
 @router.get("/status", response_model=List[JobStatus])
 async def get_jobs_status(
     scheduler: JobScheduler = Depends(get_scheduler),
-    supabase: Client = Depends(get_supabase_client)
+    supabase: Client = Depends(get_supabase_client),
 ):
     """
     Get status of all scheduled jobs.
@@ -58,12 +55,14 @@ async def get_jobs_status(
         # Get last execution for this job
         last_exec = None
         try:
-            response = supabase.table('job_executions') \
-                .select('*') \
-                .eq('job_id', job_info['id']) \
-                .order('executed_at', desc=True) \
-                .limit(1) \
+            response = (
+                supabase.table("job_executions")
+                .select("*")
+                .eq("job_id", job_info["id"])
+                .order("executed_at", desc=True)
+                .limit(1)
                 .execute()
+            )
 
             if response.data:
                 last_exec = JobExecution(**response.data[0])
@@ -71,21 +70,22 @@ async def get_jobs_status(
             # Don't fail if we can't get last execution
             pass
 
-        result.append(JobStatus(
-            job_id=job_info['id'],
-            name=job_info['name'],
-            next_run=job_info['next_run'],
-            trigger=job_info['trigger'],
-            last_execution=last_exec
-        ))
+        result.append(
+            JobStatus(
+                job_id=job_info["id"],
+                name=job_info["name"],
+                next_run=job_info["next_run"],
+                trigger=job_info["trigger"],
+                last_execution=last_exec,
+            )
+        )
 
     return result
 
 
 @router.post("/trigger", response_model=ImportResultModel)
 async def trigger_manual_import(
-    request: JobTriggerRequest,
-    scheduler: JobScheduler = Depends(get_scheduler)
+    request: JobTriggerRequest, scheduler: JobScheduler = Depends(get_scheduler)
 ):
     """
     Manually trigger a data import job.
@@ -101,23 +101,16 @@ async def trigger_manual_import(
     """
     try:
         result_dict = await scheduler.manual_import(
-            year=request.year,
-            week=request.week,
-            source=request.source
+            year=request.year, week=request.week, source=request.source
         )
         return ImportResultModel(**result_dict)
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Manual import failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Manual import failed: {str(e)}")
 
 
 @router.get("/history", response_model=List[JobExecution])
 async def get_job_history(
-    job_id: str = None,
-    limit: int = 50,
-    supabase: Client = Depends(get_supabase_client)
+    job_id: str = None, limit: int = 50, supabase: Client = Depends(get_supabase_client)
 ):
     """
     Get job execution history.
@@ -129,27 +122,25 @@ async def get_job_history(
     Returns:
         List of job execution records
     """
-    query = supabase.table('job_executions').select('*')
+    query = supabase.table("job_executions").select("*")
 
     if job_id:
-        query = query.eq('job_id', job_id)
+        query = query.eq("job_id", job_id)
 
-    query = query.order('executed_at', desc=True).limit(limit)
+    query = query.order("executed_at", desc=True).limit(limit)
 
     try:
         response = query.execute()
         return [JobExecution(**record) for record in response.data]
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch job history: {str(e)}"
+            status_code=500, detail=f"Failed to fetch job history: {str(e)}"
         )
 
 
 @router.get("/history/{execution_id}", response_model=JobExecution)
 async def get_job_execution(
-    execution_id: str,
-    supabase: Client = Depends(get_supabase_client)
+    execution_id: str, supabase: Client = Depends(get_supabase_client)
 ):
     """
     Get details of a specific job execution.
@@ -161,10 +152,12 @@ async def get_job_execution(
         Job execution details
     """
     try:
-        response = supabase.table('job_executions') \
-            .select('*') \
-            .eq('id', execution_id) \
+        response = (
+            supabase.table("job_executions")
+            .select("*")
+            .eq("id", execution_id)
             .execute()
+        )
 
         if not response.data:
             raise HTTPException(status_code=404, detail="Job execution not found")
@@ -174,6 +167,5 @@ async def get_job_execution(
         raise
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch job execution: {str(e)}"
+            status_code=500, detail=f"Failed to fetch job execution: {str(e)}"
         )

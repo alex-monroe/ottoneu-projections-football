@@ -3,7 +3,7 @@ Tests for loader API endpoints.
 """
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock
 from datetime import datetime
 
 from src.main import app
@@ -41,7 +41,7 @@ def mock_service(mock_import_result):
     service.import_weekly_data.return_value = mock_import_result
     service.get_available_sources.return_value = [
         {"name": "nflverse", "status": "available", "description": "NFLVerse data"},
-        {"name": "ffdp", "status": "available", "description": "FFDP CSV data"}
+        {"name": "ffdp", "status": "available", "description": "FFDP CSV data"},
     ]
     return service
 
@@ -66,7 +66,7 @@ def test_import_weekly_data_success(client, mock_service, mock_import_result):
     """Test successful weekly data import via API."""
     response = client.post(
         "/api/loaders/import/weekly",
-        json={"year": 2023, "week": 1, "source": "nflverse"}
+        json={"year": 2023, "week": 1, "source": "nflverse"},
     )
 
     assert response.status_code == 200
@@ -81,8 +81,7 @@ def test_import_weekly_data_success(client, mock_service, mock_import_result):
 def test_import_weekly_data_validation_error(client):
     """Test validation error for invalid request."""
     response = client.post(
-        "/api/loaders/import/weekly",
-        json={"year": 2023, "week": 25}  # Invalid week
+        "/api/loaders/import/weekly", json={"year": 2023, "week": 25}  # Invalid week
     )
 
     assert response.status_code == 422  # Validation error
@@ -96,7 +95,10 @@ def test_import_weekly_data_not_found(client, mock_service):
 
     response = client.post(
         "/api/loaders/import/weekly",
-        json={"year": 2020, "week": 1}  # Valid year but will raise DataNotAvailableError
+        json={
+            "year": 2020,
+            "week": 1,
+        },  # Valid year but will raise DataNotAvailableError
     )
 
     assert response.status_code == 404
@@ -113,10 +115,7 @@ def test_import_weekly_data_import_failed(client, mock_service):
 
     mock_service.import_weekly_data.return_value = failed_result
 
-    response = client.post(
-        "/api/loaders/import/weekly",
-        json={"year": 2023, "week": 1}
-    )
+    response = client.post("/api/loaders/import/weekly", json={"year": 2023, "week": 1})
 
     assert response.status_code == 500
 

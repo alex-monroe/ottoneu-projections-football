@@ -20,87 +20,81 @@ class DataMapper:
 
     # Column mappings for different data sources
     NFLVERSE_PLAYER_MAP = {
-        'player_name': 'name',
-        'player_display_name': 'name',
-        'recent_team': 'team',
-        'position': 'position',
-        'player_id': 'espn_id',
+        "player_name": "name",
+        "player_display_name": "name",
+        "recent_team": "team",
+        "position": "position",
+        "player_id": "espn_id",
     }
 
     NFLVERSE_PROJECTION_MAP = {
         # Passing
-        'passing_yards': 'pass_yds',
-        'completions': 'pass_cmp',
-        'attempts': 'pass_att',
-        'passing_tds': 'pass_tds',
-        'interceptions': 'pass_ints',
-
+        "passing_yards": "pass_yds",
+        "completions": "pass_cmp",
+        "attempts": "pass_att",
+        "passing_tds": "pass_tds",
+        "interceptions": "pass_ints",
         # Rushing
-        'rushing_yards': 'rush_yds',
-        'carries': 'rush_att',
-        'rushing_tds': 'rush_tds',
-
+        "rushing_yards": "rush_yds",
+        "carries": "rush_att",
+        "rushing_tds": "rush_tds",
         # Receiving
-        'receptions': 'receptions',
-        'receiving_yards': 'rec_yds',
-        'receiving_tds': 'rec_tds',
-        'targets': 'targets',
-
+        "receptions": "receptions",
+        "receiving_yards": "rec_yds",
+        "receiving_tds": "rec_tds",
+        "targets": "targets",
         # Other
-        'fumbles_lost': 'fumbles',
+        "fumbles_lost": "fumbles",
     }
 
     FFDP_PLAYER_MAP = {
-        'Player': 'name',
-        'player': 'name',
-        'Tm': 'team',
-        'team': 'team',
-        'Pos': 'position',
-        'pos': 'position',
+        "Player": "name",
+        "player": "name",
+        "Tm": "team",
+        "team": "team",
+        "Pos": "position",
+        "pos": "position",
     }
 
     FFDP_PROJECTION_MAP = {
         # Passing
-        'PassYds': 'pass_yds',
-        'pass_yds': 'pass_yds',
-        'PassAtt': 'pass_att',
-        'pass_att': 'pass_att',
-        'PassCmp': 'pass_cmp',
-        'pass_cmp': 'pass_cmp',
-        'PassTD': 'pass_tds',
-        'pass_td': 'pass_tds',
-        'Int': 'pass_ints',
-        'pass_int': 'pass_ints',
-
+        "PassYds": "pass_yds",
+        "pass_yds": "pass_yds",
+        "PassAtt": "pass_att",
+        "pass_att": "pass_att",
+        "PassCmp": "pass_cmp",
+        "pass_cmp": "pass_cmp",
+        "PassTD": "pass_tds",
+        "pass_td": "pass_tds",
+        "Int": "pass_ints",
+        "pass_int": "pass_ints",
         # Rushing
-        'RushYds': 'rush_yds',
-        'rush_yds': 'rush_yds',
-        'RushAtt': 'rush_att',
-        'rush_att': 'rush_att',
-        'RushTD': 'rush_tds',
-        'rush_td': 'rush_tds',
-
+        "RushYds": "rush_yds",
+        "rush_yds": "rush_yds",
+        "RushAtt": "rush_att",
+        "rush_att": "rush_att",
+        "RushTD": "rush_tds",
+        "rush_td": "rush_tds",
         # Receiving
-        'Rec': 'receptions',
-        'rec': 'receptions',
-        'RecYds': 'rec_yds',
-        'rec_yds': 'rec_yds',
-        'RecTD': 'rec_tds',
-        'rec_td': 'rec_tds',
-        'Tgt': 'targets',
-        'targets': 'targets',
-
+        "Rec": "receptions",
+        "rec": "receptions",
+        "RecYds": "rec_yds",
+        "rec_yds": "rec_yds",
+        "RecTD": "rec_tds",
+        "rec_td": "rec_tds",
+        "Tgt": "targets",
+        "targets": "targets",
         # Other
-        'FL': 'fumbles',
-        'fumbles': 'fumbles',
-        'fumbles_lost': 'fumbles',
+        "FL": "fumbles",
+        "fumbles": "fumbles",
+        "fumbles_lost": "fumbles",
     }
 
     def __init__(self):
         """Initialize the data mapper."""
         self.source_maps = {
-            'nflverse': (self.NFLVERSE_PLAYER_MAP, self.NFLVERSE_PROJECTION_MAP),
-            'ffdp': (self.FFDP_PLAYER_MAP, self.FFDP_PROJECTION_MAP),
+            "nflverse": (self.NFLVERSE_PLAYER_MAP, self.NFLVERSE_PROJECTION_MAP),
+            "ffdp": (self.FFDP_PLAYER_MAP, self.FFDP_PROJECTION_MAP),
         }
 
     def map_to_player_schema(self, df: pd.DataFrame, source: str) -> List[PlayerCreate]:
@@ -124,35 +118,35 @@ class DataMapper:
             player_map, _ = self._get_source_maps(source)
 
             players = []
-            # Group by player to avoid duplicates
-            player_cols = list(player_map.values())
 
             # Get the columns we need to map
             mapped_df = self._map_columns(df, player_map)
 
             # Remove duplicates based on name and position
-            if 'name' in mapped_df.columns and 'position' in mapped_df.columns:
-                unique_players = mapped_df.drop_duplicates(subset=['name', 'position'])
+            if "name" in mapped_df.columns and "position" in mapped_df.columns:
+                unique_players = mapped_df.drop_duplicates(subset=["name", "position"])
 
                 for _, row in unique_players.iterrows():
                     # Try to convert espn_id to int, but skip if it's not a valid integer
                     espn_id = None
-                    if pd.notna(row.get('espn_id')):
+                    if pd.notna(row.get("espn_id")):
                         try:
-                            espn_id = int(row.get('espn_id'))
+                            espn_id = int(row.get("espn_id"))
                         except (ValueError, TypeError):
                             # espn_id is not a valid integer, skip it
                             pass
 
                     player_data = {
-                        'name': str(row.get('name', '')),
-                        'position': str(row.get('position', '')),
-                        'team': str(row.get('team', '')) if pd.notna(row.get('team')) else None,
-                        'espn_id': espn_id,
+                        "name": str(row.get("name", "")),
+                        "position": str(row.get("position", "")),
+                        "team": str(row.get("team", ""))
+                        if pd.notna(row.get("team"))
+                        else None,
+                        "espn_id": espn_id,
                     }
 
                     # Only add if we have minimum required fields
-                    if player_data['name'] and player_data['position']:
+                    if player_data["name"] and player_data["position"]:
                         players.append(PlayerCreate(**player_data))
 
             logger.info(f"Mapped {len(players)} players from {source}")
@@ -167,7 +161,7 @@ class DataMapper:
         source: str,
         week: int,
         season: int,
-        player_id_map: Optional[Dict[str, UUID]] = None
+        player_id_map: Optional[Dict[str, UUID]] = None,
     ) -> List[ProjectionCreate]:
         """
         Map DataFrame to ProjectionCreate models.
@@ -196,8 +190,8 @@ class DataMapper:
 
             projections = []
             for _, row in mapped_df.iterrows():
-                player_name = str(row.get('name', ''))
-                player_position = str(row.get('position', ''))
+                player_name = str(row.get("name", ""))
+                player_position = str(row.get("position", ""))
 
                 # Skip if no player identifier
                 if not player_name or not player_position:
@@ -219,31 +213,27 @@ class DataMapper:
                     continue
 
                 projection_data = {
-                    'player_id': player_id,
-                    'week': week,
-                    'season': season,
-                    'source': source,
-
+                    "player_id": player_id,
+                    "week": week,
+                    "season": season,
+                    "source": source,
                     # Passing
-                    'pass_att': self._to_decimal(row.get('pass_att')),
-                    'pass_cmp': self._to_decimal(row.get('pass_cmp')),
-                    'pass_yds': self._to_decimal(row.get('pass_yds')),
-                    'pass_tds': self._to_decimal(row.get('pass_tds')),
-                    'pass_ints': self._to_decimal(row.get('pass_ints')),
-
+                    "pass_att": self._to_decimal(row.get("pass_att")),
+                    "pass_cmp": self._to_decimal(row.get("pass_cmp")),
+                    "pass_yds": self._to_decimal(row.get("pass_yds")),
+                    "pass_tds": self._to_decimal(row.get("pass_tds")),
+                    "pass_ints": self._to_decimal(row.get("pass_ints")),
                     # Rushing
-                    'rush_att': self._to_decimal(row.get('rush_att')),
-                    'rush_yds': self._to_decimal(row.get('rush_yds')),
-                    'rush_tds': self._to_decimal(row.get('rush_tds')),
-
+                    "rush_att": self._to_decimal(row.get("rush_att")),
+                    "rush_yds": self._to_decimal(row.get("rush_yds")),
+                    "rush_tds": self._to_decimal(row.get("rush_tds")),
                     # Receiving
-                    'receptions': self._to_decimal(row.get('receptions')),
-                    'rec_yds': self._to_decimal(row.get('rec_yds')),
-                    'rec_tds': self._to_decimal(row.get('rec_tds')),
-                    'targets': self._to_decimal(row.get('targets')),
-
+                    "receptions": self._to_decimal(row.get("receptions")),
+                    "rec_yds": self._to_decimal(row.get("rec_yds")),
+                    "rec_tds": self._to_decimal(row.get("rec_tds")),
+                    "targets": self._to_decimal(row.get("targets")),
                     # Other
-                    'fumbles': self._to_decimal(row.get('fumbles')),
+                    "fumbles": self._to_decimal(row.get("fumbles")),
                 }
 
                 projections.append(ProjectionCreate(**projection_data))
@@ -260,7 +250,9 @@ class DataMapper:
             raise MappingError(f"Unknown data source: {source}")
         return self.source_maps[source]
 
-    def _map_columns(self, df: pd.DataFrame, column_map: Dict[str, str]) -> pd.DataFrame:
+    def _map_columns(
+        self, df: pd.DataFrame, column_map: Dict[str, str]
+    ) -> pd.DataFrame:
         """
         Map DataFrame columns using provided mapping.
 

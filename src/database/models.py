@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 
 class PlayerBase(BaseModel):
     """Base player model."""
+
     name: str
     team: Optional[str] = None
     position: str  # QB, RB, WR, TE, K, DST
@@ -19,11 +20,13 @@ class PlayerBase(BaseModel):
 
 class PlayerCreate(PlayerBase):
     """Model for creating a new player."""
+
     espn_id: Optional[int] = None
 
 
 class Player(PlayerBase):
     """Full player model with database fields."""
+
     id: UUID
     espn_id: Optional[int] = None
     created_at: datetime
@@ -34,6 +37,7 @@ class Player(PlayerBase):
 
 class ProjectionBase(BaseModel):
     """Base projection model."""
+
     week: int = Field(..., ge=1, le=18)
     season: int = Field(..., ge=2020, le=2030)
     source: str = "espn"
@@ -62,11 +66,13 @@ class ProjectionBase(BaseModel):
 
 class ProjectionCreate(ProjectionBase):
     """Model for creating a new projection."""
+
     player_id: UUID
 
 
 class Projection(ProjectionBase):
     """Full projection model with database fields."""
+
     id: UUID
     player_id: UUID
     created_at: datetime
@@ -77,11 +83,13 @@ class Projection(ProjectionBase):
 
 class ProjectionWithPlayer(Projection):
     """Projection with nested player data."""
+
     player: Player
 
 
 class ScoringConfigBase(BaseModel):
     """Base scoring configuration model."""
+
     name: str
 
     # Passing scoring
@@ -106,11 +114,13 @@ class ScoringConfigBase(BaseModel):
 
 class ScoringConfigCreate(ScoringConfigBase):
     """Model for creating a new scoring configuration."""
+
     pass
 
 
 class ScoringConfig(ScoringConfigBase):
     """Full scoring configuration model with database fields."""
+
     id: UUID
     created_at: datetime
 
@@ -119,6 +129,7 @@ class ScoringConfig(ScoringConfigBase):
 
 class PlayerProjection(BaseModel):
     """Combined model with player, projection, and calculated points."""
+
     player_id: UUID
     player_name: str
     team: Optional[str] = None
@@ -140,6 +151,7 @@ class PlayerProjection(BaseModel):
 
 class HealthCheck(BaseModel):
     """Health check response model."""
+
     status: str
     environment: str
     timestamp: datetime
@@ -147,6 +159,7 @@ class HealthCheck(BaseModel):
 
 class ImportRequest(BaseModel):
     """Request model for importing data."""
+
     year: int = Field(..., ge=1999, le=2030, description="NFL season year")
     week: int = Field(..., ge=1, le=18, description="Week number")
     source: str = Field(default="nflverse", description="Data source name")
@@ -154,6 +167,7 @@ class ImportRequest(BaseModel):
 
 class ImportResultModel(BaseModel):
     """Result of a data import operation."""
+
     success: bool
     players_imported: int
     players_updated: int
@@ -168,6 +182,7 @@ class ImportResultModel(BaseModel):
 
 class DataSourceInfo(BaseModel):
     """Information about a data source."""
+
     name: str
     status: str  # 'available' or 'unavailable'
     description: str
@@ -175,6 +190,7 @@ class DataSourceInfo(BaseModel):
 
 class JobExecutionBase(BaseModel):
     """Base job execution model."""
+
     job_id: str
     status: str  # 'success', 'failed', 'error'
     executed_at: datetime
@@ -185,6 +201,7 @@ class JobExecutionBase(BaseModel):
 
 class JobExecution(JobExecutionBase):
     """Full job execution model with database fields."""
+
     id: UUID
     created_at: datetime
 
@@ -193,6 +210,7 @@ class JobExecution(JobExecutionBase):
 
 class JobStatus(BaseModel):
     """Status of a scheduled job."""
+
     job_id: str
     name: str
     next_run: Optional[datetime] = None
@@ -202,6 +220,7 @@ class JobStatus(BaseModel):
 
 class JobTriggerRequest(BaseModel):
     """Request to manually trigger a job."""
+
     year: int = Field(..., ge=1999, le=2030)
     week: int = Field(..., ge=1, le=18)
     source: str = Field(default="nflverse")

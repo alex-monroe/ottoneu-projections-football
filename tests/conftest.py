@@ -16,6 +16,7 @@ def setup_test_env():
 
     # Clear any cached settings from src.config
     from src.config import get_settings, get_supabase_client
+
     get_settings.cache_clear()
     get_supabase_client.cache_clear()
 

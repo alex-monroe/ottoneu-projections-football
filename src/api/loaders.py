@@ -17,7 +17,7 @@ router = APIRouter(tags=["loaders"])
 
 
 def get_loader_service(
-    supabase: Client = Depends(get_supabase_client)
+    supabase: Client = Depends(get_supabase_client),
 ) -> LoaderService:
     """Dependency for getting loader service."""
     return LoaderService(supabase)
@@ -25,8 +25,7 @@ def get_loader_service(
 
 @router.post("/loaders/import/weekly", response_model=ImportResultModel)
 async def import_weekly_data(
-    request: ImportRequest,
-    service: LoaderService = Depends(get_loader_service)
+    request: ImportRequest, service: LoaderService = Depends(get_loader_service)
 ):
     """
     Import weekly player data from a data source.
@@ -41,44 +40,34 @@ async def import_weekly_data(
         HTTPException: If import fails
     """
     try:
-        logger.info(f"Importing {request.source} data for {request.year} week {request.week}")
+        logger.info(
+            f"Importing {request.source} data for {request.year} week {request.week}"
+        )
 
         result = service.import_weekly_data(
             year=request.year,
             week=request.week,
             source=request.source,
-            use_fallback=True
+            use_fallback=True,
         )
 
         if not result.success:
             raise HTTPException(
                 status_code=500,
-                detail={
-                    "message": "Import failed",
-                    "errors": result.errors
-                }
+                detail={"message": "Import failed", "errors": result.errors},
             )
 
         return ImportResultModel(**result.to_dict())
 
     except DataNotAvailableError as e:
         logger.warning(f"Data not available: {str(e)}")
-        raise HTTPException(
-            status_code=404,
-            detail=f"Data not available: {str(e)}"
-        )
+        raise HTTPException(status_code=404, detail=f"Data not available: {str(e)}")
     except LoaderError as e:
         logger.error(f"Loader error: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Loader error: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Loader error: {str(e)}")
     except Exception as e:
         logger.error(f"Unexpected error during import: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Unexpected error: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 
 @router.post("/loaders/import/season", response_model=List[ImportResultModel])
@@ -87,7 +76,7 @@ async def import_season_data(
     source: str = Query(default="nflverse", description="Data source name"),
     start_week: int = Query(default=1, ge=1, le=18, description="Starting week"),
     end_week: int = Query(default=18, ge=1, le=18, description="Ending week"),
-    service: LoaderService = Depends(get_loader_service)
+    service: LoaderService = Depends(get_loader_service),
 ):
     """
     Import multiple weeks of data for a season.
@@ -106,8 +95,7 @@ async def import_season_data(
     """
     if start_week > end_week:
         raise HTTPException(
-            status_code=400,
-            detail="start_week must be less than or equal to end_week"
+            status_code=400, detail="start_week must be less than or equal to end_week"
         )
 
     results = []
@@ -116,10 +104,7 @@ async def import_season_data(
             logger.info(f"Importing week {week} of {year}")
 
             result = service.import_weekly_data(
-                year=year,
-                week=week,
-                source=source,
-                use_fallback=True
+                year=year, week=week, source=source, use_fallback=True
             )
 
             results.append(ImportResultModel(**result.to_dict()))
@@ -132,6 +117,7 @@ async def import_season_data(
             logger.error(f"Error importing week {week}: {str(e)}")
             # Create a failed result for this week
             from datetime import datetime
+
             failed_result = ImportResultModel(
                 success=False,
                 players_imported=0,
@@ -142,7 +128,7 @@ async def import_season_data(
                 year=year,
                 week=week,
                 errors=[str(e)],
-                timestamp=datetime.utcnow()
+                timestamp=datetime.utcnow(),
             )
             results.append(failed_result)
 
@@ -150,9 +136,7 @@ async def import_season_data(
 
 
 @router.get("/loaders/sources", response_model=List[DataSourceInfo])
-async def get_data_sources(
-    service: LoaderService = Depends(get_loader_service)
-):
+async def get_data_sources(service: LoaderService = Depends(get_loader_service)):
     """
     Get list of available data sources.
 
@@ -165,15 +149,12 @@ async def get_data_sources(
     except Exception as e:
         logger.error(f"Error getting sources: {str(e)}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve data sources: {str(e)}"
+            status_code=500, detail=f"Failed to retrieve data sources: {str(e)}"
         )
 
 
 @router.get("/loaders/available-data")
-async def get_available_data(
-    supabase: Client = Depends(get_supabase_client)
-):
+async def get_available_data(supabase: Client = Depends(get_supabase_client)):
     """
     Get summary of what data exists in the database.
 
@@ -182,16 +163,10 @@ async def get_available_data(
     """
     try:
         # Query distinct year/week/source combinations
-        response = supabase.table("projections").select(
-            "season,week,source"
-        ).execute()
+        response = supabase.table("projections").select("season,week,source").execute()
 
         if not response.data:
-            return {
-                "total_weeks": 0,
-                "seasons": [],
-                "sources": []
-            }
+            return {"total_weeks": 0, "seasons": [], "sources": []}
 
         # Organize data
         data_map = {}
@@ -218,26 +193,18 @@ async def get_available_data(
         for season in sorted(data_map.keys()):
             weeks = []
             for week in sorted(data_map[season].keys()):
-                weeks.append({
-                    "week": week,
-                    "sources": data_map[season][week]
-                })
+                weeks.append({"week": week, "sources": data_map[season][week]})
 
-            seasons.append({
-                "season": season,
-                "weeks": weeks,
-                "week_count": len(weeks)
-            })
+            seasons.append({"season": season, "weeks": weeks, "week_count": len(weeks)})
 
         return {
             "total_weeks": sum(s["week_count"] for s in seasons),
             "seasons": seasons,
-            "sources": sorted(list(sources))
+            "sources": sorted(list(sources)),
         }
 
     except Exception as e:
         logger.error(f"Error getting available data: {str(e)}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve available data: {str(e)}"
+            status_code=500, detail=f"Failed to retrieve available data: {str(e)}"
         )

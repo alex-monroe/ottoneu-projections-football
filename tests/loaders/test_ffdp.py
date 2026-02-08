@@ -4,7 +4,7 @@ Tests for FFDP loader.
 import pytest
 import pandas as pd
 import responses
-from requests.exceptions import Timeout, RequestException
+from requests.exceptions import Timeout
 
 from src.loaders.ffdp import FFDPLoader
 from src.loaders.exceptions import DataNotAvailableError, LoaderError
@@ -27,14 +27,14 @@ def test_load_weekly_csv_success(ffdp_loader, sample_ffdp_data):
         url,
         body=sample_ffdp_data.to_csv(index=False),
         status=200,
-        content_type="text/csv"
+        content_type="text/csv",
     )
 
     df = ffdp_loader.load_weekly_csv(2023, 1)
 
     assert not df.empty
     assert len(df) == 3
-    assert 'Player' in df.columns or 'player' in df.columns
+    assert "Player" in df.columns or "player" in df.columns
 
 
 @responses.activate
@@ -42,11 +42,7 @@ def test_load_weekly_csv_404(ffdp_loader):
     """Test handling of 404 (data not available)."""
     url = "https://raw.githubusercontent.com/fantasydatapros/data/master/weekly/2099/week1.csv"
 
-    responses.add(
-        responses.GET,
-        url,
-        status=404
-    )
+    responses.add(responses.GET, url, status=404)
 
     with pytest.raises(DataNotAvailableError, match="404"):
         ffdp_loader.load_weekly_csv(2099, 1)
@@ -58,11 +54,7 @@ def test_load_weekly_csv_timeout(ffdp_loader):
     url = "https://raw.githubusercontent.com/fantasydatapros/data/master/weekly/2023/week1.csv"
 
     # Simulate timeout
-    responses.add(
-        responses.GET,
-        url,
-        body=Timeout("Connection timed out")
-    )
+    responses.add(responses.GET, url, body=Timeout("Connection timed out"))
 
     with pytest.raises(LoaderError, match="timeout"):
         ffdp_loader.load_weekly_csv(2023, 1)
@@ -73,13 +65,7 @@ def test_load_weekly_csv_empty_file(ffdp_loader):
     """Test handling of empty CSV."""
     url = "https://raw.githubusercontent.com/fantasydatapros/data/master/weekly/2023/week1.csv"
 
-    responses.add(
-        responses.GET,
-        url,
-        body="",
-        status=200,
-        content_type="text/csv"
-    )
+    responses.add(responses.GET, url, body="", status=200, content_type="text/csv")
 
     with pytest.raises(DataNotAvailableError, match="empty"):
         ffdp_loader.load_weekly_csv(2023, 1)
@@ -111,10 +97,7 @@ def test_validate_data_with_player_column(sample_ffdp_data):
 
 def test_validate_data_without_player_column():
     """Test validation fails without player column."""
-    df = pd.DataFrame({
-        'PassYds': [300, 250],
-        'RushYds': [50, 100]
-    })
+    df = pd.DataFrame({"PassYds": [300, 250], "RushYds": [50, 100]})
 
     loader = FFDPLoader()
     assert loader.validate_data(df) is False
@@ -136,7 +119,7 @@ def test_load_data_calls_load_weekly_csv(ffdp_loader, sample_ffdp_data):
             url,
             body=sample_ffdp_data.to_csv(index=False),
             status=200,
-            content_type="text/csv"
+            content_type="text/csv",
         )
 
         df = ffdp_loader.load_data(year=2023, week=1)

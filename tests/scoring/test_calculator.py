@@ -26,7 +26,7 @@ def ppr_config():
         rec_points=Decimal("1"),  # PPR
         fumble_points=Decimal("-2"),
         is_default=True,
-        created_at=datetime.utcnow()
+        created_at=datetime.utcnow(),
     )
 
 
@@ -46,7 +46,7 @@ def standard_config():
         rec_points=Decimal("0"),  # No PPR
         fumble_points=Decimal("-2"),
         is_default=False,
-        created_at=datetime.utcnow()
+        created_at=datetime.utcnow(),
     )
 
 
@@ -69,7 +69,7 @@ def qb_projection():
         rec_tds=None,
         fumbles=Decimal("0"),
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
 
 
@@ -92,7 +92,7 @@ def rb_projection():
         rec_tds=Decimal("0"),
         fumbles=Decimal("1"),
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
 
 
@@ -115,7 +115,7 @@ def wr_projection():
         rec_tds=Decimal("1"),
         fumbles=Decimal("0"),
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
 
 
@@ -186,7 +186,7 @@ def test_calculate_points_from_stats(ppr_config):
         pass_tds=Decimal("2"),
         rush_yds=Decimal("30"),
         receptions=Decimal("6"),
-        rec_yds=Decimal("80")
+        rec_yds=Decimal("80"),
     )
 
     # 250 / 25 = 10
@@ -204,11 +204,11 @@ def test_calculate_breakdown(ppr_config, rb_projection):
 
     breakdown = calculator.calculate_breakdown(rb_projection)
 
-    assert breakdown['passing'] == Decimal("0.00")
-    assert breakdown['rushing'] == Decimal("16.00")  # 100/10 + 1*6
-    assert breakdown['receiving'] == Decimal("10.00")  # 5*1 + 50/10
-    assert breakdown['fumbles'] == Decimal("-2.00")  # 1*-2
-    assert breakdown['total'] == Decimal("24.00")
+    assert breakdown["passing"] == Decimal("0.00")
+    assert breakdown["rushing"] == Decimal("16.00")  # 100/10 + 1*6
+    assert breakdown["receiving"] == Decimal("10.00")  # 5*1 + 50/10
+    assert breakdown["fumbles"] == Decimal("-2.00")  # 1*-2
+    assert breakdown["total"] == Decimal("24.00")
 
 
 def test_get_standard_scoring_configs():
@@ -250,7 +250,7 @@ def test_calculator_with_none_values(ppr_config):
         rec_tds=None,
         fumbles=None,
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
 
     calculator = ScoringCalculator(ppr_config)
@@ -278,7 +278,7 @@ def test_calculator_with_zero_points(ppr_config):
         rec_tds=Decimal("0"),
         fumbles=Decimal("0"),
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
 
     calculator = ScoringCalculator(ppr_config)
@@ -305,7 +305,7 @@ def test_negative_points_from_turnovers(ppr_config):
         rec_tds=None,
         fumbles=Decimal("2"),  # -4 points
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
 
     calculator = ScoringCalculator(ppr_config)

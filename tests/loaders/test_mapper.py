@@ -47,7 +47,7 @@ def test_map_nflverse_projections(sample_nflverse_data, sample_player_ids):
         "nflverse",
         week=1,
         season=2023,
-        player_id_map=sample_player_ids
+        player_id_map=sample_player_ids,
     )
 
     # Should have projections for all 3 players
@@ -55,8 +55,8 @@ def test_map_nflverse_projections(sample_nflverse_data, sample_player_ids):
 
     # Find Mahomes projection
     mahomes_proj = next(
-        (p for p in projections if p.player_id == sample_player_ids['Patrick Mahomes']),
-        None
+        (p for p in projections if p.player_id == sample_player_ids["Patrick Mahomes"]),
+        None,
     )
 
     assert mahomes_proj is not None
@@ -77,7 +77,7 @@ def test_map_projections_without_player_ids(sample_nflverse_data):
         "nflverse",
         week=1,
         season=2023,
-        player_id_map=None  # No player IDs
+        player_id_map=None,  # No player IDs
     )
 
     # Should have no projections without player IDs
@@ -87,6 +87,7 @@ def test_map_projections_without_player_ids(sample_nflverse_data):
 def test_map_empty_dataframe():
     """Test mapping empty DataFrame."""
     import pandas as pd
+
     mapper = DataMapper()
 
     empty_df = pd.DataFrame()
@@ -94,9 +95,7 @@ def test_map_empty_dataframe():
     players = mapper.map_to_player_schema(empty_df, "nflverse")
     assert len(players) == 0
 
-    projections = mapper.map_to_projection_schema(
-        empty_df, "nflverse", 1, 2023
-    )
+    projections = mapper.map_to_projection_schema(empty_df, "nflverse", 1, 2023)
     assert len(projections) == 0
 
 
@@ -111,11 +110,12 @@ def test_unknown_source_raises_error(sample_nflverse_data):
 def test_decimal_conversion_handles_none():
     """Test that None values are handled correctly."""
     import pandas as pd
+
     mapper = DataMapper()
 
     assert mapper._to_decimal(None) is None
     assert mapper._to_decimal(pd.NA) is None
-    assert mapper._to_decimal(float('nan')) is None
+    assert mapper._to_decimal(float("nan")) is None
 
 
 def test_decimal_conversion_handles_values():

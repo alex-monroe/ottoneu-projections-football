@@ -27,6 +27,7 @@ class NFLVerseLoader(BaseLoader):
         # Import here to avoid dependency issues if package not installed
         try:
             import nfl_data_py as nfl
+
             self.nfl = nfl
         except ImportError as e:
             raise LoaderError(
@@ -76,20 +77,16 @@ class NFLVerseLoader(BaseLoader):
             df = self.nfl.import_weekly_data(years=[year])
 
             if df is None or df.empty:
-                raise DataNotAvailableError(
-                    f"No data available for year {year}"
-                )
+                raise DataNotAvailableError(f"No data available for year {year}")
 
             # Filter to specific week
-            if 'week' in df.columns:
-                df = df[df['week'] == week]
+            if "week" in df.columns:
+                df = df[df["week"] == week]
             else:
                 raise LoaderError("'week' column not found in NFLVerse data")
 
             if df.empty:
-                raise DataNotAvailableError(
-                    f"No data available for {year} week {week}"
-                )
+                raise DataNotAvailableError(f"No data available for {year} week {week}")
 
             logger.info(f"Loaded {len(df)} player records from NFLVerse")
             return df
@@ -120,9 +117,7 @@ class NFLVerseLoader(BaseLoader):
             df = self.nfl.import_weekly_data(years=[year])
 
             if df is None or df.empty:
-                raise DataNotAvailableError(
-                    f"No data available for season {year}"
-                )
+                raise DataNotAvailableError(f"No data available for season {year}")
 
             logger.info(f"Loaded {len(df)} player records for {year} season")
             return df
@@ -155,10 +150,10 @@ class NFLVerseLoader(BaseLoader):
             List of required column names
         """
         return [
-            'player_name',
-            'position',
-            'week',
-            'season',
+            "player_name",
+            "position",
+            "week",
+            "season",
         ]
 
     def validate_data(self, df: pd.DataFrame) -> bool:
@@ -177,8 +172,13 @@ class NFLVerseLoader(BaseLoader):
         # Additional NFLVerse-specific validation
         # Check that we have some stat columns
         stat_cols = [
-            'passing_yards', 'rushing_yards', 'receiving_yards',
-            'completions', 'attempts', 'carries', 'receptions'
+            "passing_yards",
+            "rushing_yards",
+            "receiving_yards",
+            "completions",
+            "attempts",
+            "carries",
+            "receptions",
         ]
 
         has_stats = any(col in df.columns for col in stat_cols)

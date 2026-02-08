@@ -136,11 +136,13 @@ class ScoringCalculator:
         fumbles = self._calculate_fumble_points(projection)
 
         return {
-            'passing': passing.quantize(Decimal("0.01")),
-            'rushing': rushing.quantize(Decimal("0.01")),
-            'receiving': receiving.quantize(Decimal("0.01")),
-            'fumbles': fumbles.quantize(Decimal("0.01")),
-            'total': (passing + rushing + receiving + fumbles).quantize(Decimal("0.01"))
+            "passing": passing.quantize(Decimal("0.01")),
+            "rushing": rushing.quantize(Decimal("0.01")),
+            "receiving": receiving.quantize(Decimal("0.01")),
+            "fumbles": fumbles.quantize(Decimal("0.01")),
+            "total": (passing + rushing + receiving + fumbles).quantize(
+                Decimal("0.01")
+            ),
         }
 
     def _calculate_passing_points(self, projection: Projection) -> Decimal:

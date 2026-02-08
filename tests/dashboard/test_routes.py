@@ -50,7 +50,7 @@ def sample_projections():
             rush_tds=Decimal("0"),
             receptions=None,
             rec_yds=None,
-            rec_tds=None
+            rec_tds=None,
         ),
         PlayerProjection(
             player_id=str(uuid4()),
@@ -67,8 +67,8 @@ def sample_projections():
             rush_tds=Decimal("1"),
             receptions=Decimal("5"),
             rec_yds=Decimal("39"),
-            rec_tds=Decimal("0")
-        )
+            rec_tds=Decimal("0"),
+        ),
     ]
 
 
@@ -84,11 +84,15 @@ def test_dashboard_home_loads_without_data(client, mock_supabase):
     def table_side_effect(table_name):
         if table_name == "scoring_configs":
             scoring_mock = MagicMock()
-            scoring_mock.select.return_value.eq.return_value.execute.return_value = mock_scoring
+            scoring_mock.select.return_value.eq.return_value.execute.return_value = (
+                mock_scoring
+            )
             return scoring_mock
         elif table_name == "projections":
             proj_mock = MagicMock()
-            proj_mock.select.return_value.eq.return_value.eq.return_value.execute.return_value = mock_projections
+            proj_mock.select.return_value.eq.return_value.eq.return_value.execute.return_value = (
+                mock_projections
+            )
             return proj_mock
         return MagicMock()
 
@@ -110,7 +114,9 @@ def test_dashboard_with_invalid_scoring_config(client, mock_supabase):
     mock_scoring = MagicMock()
     mock_scoring.data = []
 
-    mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value = mock_scoring
+    mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value = (
+        mock_scoring
+    )
 
     # Override dependency
     app.dependency_overrides[get_supabase_client] = lambda: mock_supabase
@@ -130,7 +136,9 @@ def test_player_detail_not_found(client, mock_supabase):
     mock_player = MagicMock()
     mock_player.data = []
 
-    mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value = mock_player
+    mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value = (
+        mock_player
+    )
 
     # Override dependency
     app.dependency_overrides[get_supabase_client] = lambda: mock_supabase
@@ -153,19 +161,25 @@ def test_player_detail_loads_with_no_stats(client, mock_supabase):
 
     # Mock player data
     mock_player_response = MagicMock()
-    mock_player_response.data = [{
-        "id": player_id,
-        "name": "New Player",
-        "team": "MIA",
-        "position": "WR",
-        "status": "active"
-    }]
-    mock_player_table.select.return_value.eq.return_value.execute.return_value = mock_player_response
+    mock_player_response.data = [
+        {
+            "id": player_id,
+            "name": "New Player",
+            "team": "MIA",
+            "position": "WR",
+            "status": "active",
+        }
+    ]
+    mock_player_table.select.return_value.eq.return_value.execute.return_value = (
+        mock_player_response
+    )
 
     # No projections
     mock_projections_response = MagicMock()
     mock_projections_response.data = []
-    mock_projections_table.select.return_value.eq.return_value.eq.return_value.order.return_value.execute.return_value = mock_projections_response
+    mock_projections_table.select.return_value.eq.return_value.eq.return_value.order.return_value.execute.return_value = (
+        mock_projections_response
+    )
 
     # Mock scoring configs
     mock_scoring_response = MagicMock()
@@ -183,7 +197,7 @@ def test_player_detail_loads_with_no_stats(client, mock_supabase):
             "rec_points": 1,
             "fumble_points": -2,
             "is_default": True,
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.utcnow().isoformat(),
         }
     ]
     mock_scoring_table.select.return_value.execute.return_value = mock_scoring_response

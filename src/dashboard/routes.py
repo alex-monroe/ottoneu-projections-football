@@ -21,7 +21,7 @@ async def dashboard_home(
     scoring: str = Query(default="PPR (Point Per Reception)"),
     position: Optional[str] = Query(default=None),
     result_limit: int = Query(default=50, ge=1, le=200, alias="limit"),
-    supabase: Client = Depends(get_supabase_client)
+    supabase: Client = Depends(get_supabase_client),
 ):
     """
     Main dashboard page showing projections.
@@ -40,8 +40,14 @@ async def dashboard_home(
     """
     try:
         # Get scoring configurations for dropdown
-        scoring_configs_response = supabase.table("scoring_configs").select("name").execute()
-        scoring_options = [config["name"] for config in scoring_configs_response.data] if scoring_configs_response.data else ["PPR (Point Per Reception)", "Half-PPR", "Standard (No PPR)"]
+        scoring_configs_response = (
+            supabase.table("scoring_configs").select("name").execute()
+        )
+        scoring_options = (
+            [config["name"] for config in scoring_configs_response.data]
+            if scoring_configs_response.data
+            else ["PPR (Point Per Reception)", "Half-PPR", "Standard (No PPR)"]
+        )
 
         # Get projections from API logic (reuse existing API)
         from src.api.projections import get_projections
@@ -54,7 +60,8 @@ async def dashboard_home(
             sort_by="fantasy_points",
             order="desc",
             limit=result_limit,
-            supabase=supabase
+            offset=0,
+            supabase=supabase,
         )
 
         # Convert to dict for template
@@ -73,7 +80,7 @@ async def dashboard_home(
                 "positions": ["ALL", "QB", "RB", "WR", "TE"],
                 "weeks": list(range(1, 19)),
                 "seasons": list(range(2023, 2020, -1)),
-            }
+            },
         )
     except HTTPException as e:
         # Handle API errors gracefully in the UI
@@ -82,9 +89,9 @@ async def dashboard_home(
             {
                 "request": request,
                 "error_message": str(e.detail),
-                "error_code": e.status_code
+                "error_code": e.status_code,
             },
-            status_code=e.status_code
+            status_code=e.status_code,
         )
     except Exception as e:
         return templates.TemplateResponse(
@@ -92,9 +99,9 @@ async def dashboard_home(
             {
                 "request": request,
                 "error_message": f"An unexpected error occurred: {str(e)}",
-                "error_code": 500
+                "error_code": 500,
             },
-            status_code=500
+            status_code=500,
         )
 
 
@@ -103,7 +110,7 @@ async def player_detail(
     request: Request,
     player_id: str,
     season: int = Query(default=2023, ge=1999, le=2030),
-    supabase: Client = Depends(get_supabase_client)
+    supabase: Client = Depends(get_supabase_client),
 ):
     """
     Player detail page showing stats and projections.
@@ -119,7 +126,9 @@ async def player_detail(
     """
     try:
         # Get player info
-        player_response = supabase.table("players").select("*").eq("id", player_id).execute()
+        player_response = (
+            supabase.table("players").select("*").eq("id", player_id).execute()
+        )
 
         if not player_response.data:
             raise HTTPException(status_code=404, detail="Player not found")
@@ -127,8 +136,10 @@ async def player_detail(
         player = player_response.data[0]
 
         # Get all projections for this player in the season
-        projections_response = supabase.table("projections").select(
-            """
+        projections_response = (
+            supabase.table("projections")
+            .select(
+                """
             id,
             week,
             season,
@@ -147,7 +158,12 @@ async def player_detail(
             targets,
             fumbles
             """
-        ).eq("player_id", player_id).eq("season", season).order("week").execute()
+            )
+            .eq("player_id", player_id)
+            .eq("season", season)
+            .order("week")
+            .execute()
+        )
 
         projections = projections_response.data if projections_response.data else []
 
@@ -157,8 +173,12 @@ async def player_detail(
         from decimal import Decimal
 
         # Get scoring configs
-        scoring_configs_response = supabase.table("scoring_configs").select("*").execute()
-        scoring_configs = scoring_configs_response.data if scoring_configs_response.data else []
+        scoring_configs_response = (
+            supabase.table("scoring_configs").select("*").execute()
+        )
+        scoring_configs = (
+            scoring_configs_response.data if scoring_configs_response.data else []
+        )
 
         # Calculate points for each projection and scoring format
         projections_with_points = []
@@ -168,7 +188,7 @@ async def player_detail(
                 "season": proj_data["season"],
                 "source": proj_data["source"],
                 "stats": proj_data,
-                "fantasy_points": {}
+                "fantasy_points": {},
             }
 
             # Create Projection model
@@ -178,21 +198,47 @@ async def player_detail(
                 week=proj_data["week"],
                 season=proj_data["season"],
                 source=proj_data["source"],
-                pass_att=Decimal(str(proj_data["pass_att"])) if proj_data.get("pass_att") else None,
-                pass_cmp=Decimal(str(proj_data["pass_cmp"])) if proj_data.get("pass_cmp") else None,
-                pass_yds=Decimal(str(proj_data["pass_yds"])) if proj_data.get("pass_yds") else None,
-                pass_tds=Decimal(str(proj_data["pass_tds"])) if proj_data.get("pass_tds") else None,
-                pass_ints=Decimal(str(proj_data["pass_ints"])) if proj_data.get("pass_ints") else None,
-                rush_att=Decimal(str(proj_data["rush_att"])) if proj_data.get("rush_att") else None,
-                rush_yds=Decimal(str(proj_data["rush_yds"])) if proj_data.get("rush_yds") else None,
-                rush_tds=Decimal(str(proj_data["rush_tds"])) if proj_data.get("rush_tds") else None,
-                receptions=Decimal(str(proj_data["receptions"])) if proj_data.get("receptions") else None,
-                rec_yds=Decimal(str(proj_data["rec_yds"])) if proj_data.get("rec_yds") else None,
-                rec_tds=Decimal(str(proj_data["rec_tds"])) if proj_data.get("rec_tds") else None,
-                targets=Decimal(str(proj_data["targets"])) if proj_data.get("targets") else None,
-                fumbles=Decimal(str(proj_data["fumbles"])) if proj_data.get("fumbles") else None,
+                pass_att=Decimal(str(proj_data["pass_att"]))
+                if proj_data.get("pass_att")
+                else None,
+                pass_cmp=Decimal(str(proj_data["pass_cmp"]))
+                if proj_data.get("pass_cmp")
+                else None,
+                pass_yds=Decimal(str(proj_data["pass_yds"]))
+                if proj_data.get("pass_yds")
+                else None,
+                pass_tds=Decimal(str(proj_data["pass_tds"]))
+                if proj_data.get("pass_tds")
+                else None,
+                pass_ints=Decimal(str(proj_data["pass_ints"]))
+                if proj_data.get("pass_ints")
+                else None,
+                rush_att=Decimal(str(proj_data["rush_att"]))
+                if proj_data.get("rush_att")
+                else None,
+                rush_yds=Decimal(str(proj_data["rush_yds"]))
+                if proj_data.get("rush_yds")
+                else None,
+                rush_tds=Decimal(str(proj_data["rush_tds"]))
+                if proj_data.get("rush_tds")
+                else None,
+                receptions=Decimal(str(proj_data["receptions"]))
+                if proj_data.get("receptions")
+                else None,
+                rec_yds=Decimal(str(proj_data["rec_yds"]))
+                if proj_data.get("rec_yds")
+                else None,
+                rec_tds=Decimal(str(proj_data["rec_tds"]))
+                if proj_data.get("rec_tds")
+                else None,
+                targets=Decimal(str(proj_data["targets"]))
+                if proj_data.get("targets")
+                else None,
+                fumbles=Decimal(str(proj_data["fumbles"]))
+                if proj_data.get("fumbles")
+                else None,
                 created_at=proj_data.get("created_at"),
-                updated_at=proj_data.get("updated_at")
+                updated_at=proj_data.get("updated_at"),
             )
 
             # Calculate points for each scoring format
@@ -213,7 +259,7 @@ async def player_detail(
                 "season": season,
                 "scoring_configs": [config["name"] for config in scoring_configs],
                 "seasons": list(range(2023, 2020, -1)),
-            }
+            },
         )
 
     except HTTPException:
@@ -224,7 +270,7 @@ async def player_detail(
             {
                 "request": request,
                 "error_message": f"Failed to load player details: {str(e)}",
-                "error_code": 500
+                "error_code": 500,
             },
-            status_code=500
+            status_code=500,
         )

@@ -4,7 +4,7 @@ Service layer for data loading and database operations.
 Orchestrates the process of loading data from sources, mapping to our schema,
 and upserting into the database.
 """
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 from uuid import UUID
 import logging
 from datetime import datetime
@@ -15,7 +15,7 @@ from src.database.models import PlayerCreate, ProjectionCreate
 from src.loaders.nflverse import NFLVerseLoader
 from src.loaders.ffdp import FFDPLoader
 from src.loaders.mapper import DataMapper
-from src.loaders.exceptions import DataNotAvailableError, LoaderError, MappingError
+from src.loaders.exceptions import DataNotAvailableError, LoaderError
 
 logger = logging.getLogger(__name__)
 
@@ -69,11 +69,7 @@ class LoaderService:
         self.mapper = DataMapper()
 
     def import_weekly_data(
-        self,
-        year: int,
-        week: int,
-        source: str = "nflverse",
-        use_fallback: bool = True
+        self, year: int, week: int, source: str = "nflverse", use_fallback: bool = True
     ) -> ImportResult:
         """
         Import weekly player data from a source.
@@ -116,7 +112,9 @@ class LoaderService:
                         result.source = "ffdp"
                     except Exception as fallback_error:
                         logger.error(f"Fallback also failed: {str(fallback_error)}")
-                        raise LoaderError(f"Both primary and fallback sources failed") from e
+                        raise LoaderError(
+                            "Both primary and fallback sources failed"
+                        ) from e
                 else:
                     raise
 
@@ -134,9 +132,7 @@ class LoaderService:
             result.players_imported = new_count
             result.players_updated = updated_count
 
-            logger.info(
-                f"Upserted players: {new_count} new, {updated_count} updated"
-            )
+            logger.info(f"Upserted players: {new_count} new, {updated_count} updated")
 
             # Map projections
             projections = self.mapper.map_to_projection_schema(
@@ -149,9 +145,7 @@ class LoaderService:
             result.projections_imported = proj_new
             result.projections_updated = proj_updated
 
-            logger.info(
-                f"Upserted projections: {proj_new} new, {proj_updated} updated"
-            )
+            logger.info(f"Upserted projections: {proj_new} new, {proj_updated} updated")
 
             result.success = True
             return result
@@ -185,9 +179,13 @@ class LoaderService:
         for player in players:
             try:
                 # Check if player exists
-                response = self.supabase.table("players").select("*").eq(
-                    "name", player.name
-                ).eq("position", player.position).execute()
+                response = (
+                    self.supabase.table("players")
+                    .select("*")
+                    .eq("name", player.name)
+                    .eq("position", player.position)
+                    .execute()
+                )
 
                 if response.data and len(response.data) > 0:
                     # Player exists, update if needed
@@ -196,9 +194,11 @@ class LoaderService:
 
                     # Update team if changed
                     if player.team and player.team != existing.get("team"):
-                        self.supabase.table("players").update({
-                            "team": player.team,
-                        }).eq("id", str(player_id)).execute()
+                        self.supabase.table("players").update(
+                            {
+                                "team": player.team,
+                            }
+                        ).eq("id", str(player_id)).execute()
                         updated_count += 1
 
                     player_id_map[player.name] = player_id
@@ -206,13 +206,19 @@ class LoaderService:
 
                 else:
                     # Insert new player
-                    insert_response = self.supabase.table("players").insert({
-                        "name": player.name,
-                        "team": player.team,
-                        "position": player.position,
-                        "status": player.status,
-                        "espn_id": player.espn_id,
-                    }).execute()
+                    insert_response = (
+                        self.supabase.table("players")
+                        .insert(
+                            {
+                                "name": player.name,
+                                "team": player.team,
+                                "position": player.position,
+                                "status": player.status,
+                                "espn_id": player.espn_id,
+                            }
+                        )
+                        .execute()
+                    )
 
                     if insert_response.data and len(insert_response.data) > 0:
                         player_id = UUID(insert_response.data[0]["id"])
@@ -247,11 +253,15 @@ class LoaderService:
         for proj in projections:
             try:
                 # Check if projection exists
-                response = self.supabase.table("projections").select("id").eq(
-                    "player_id", str(proj.player_id)
-                ).eq("week", proj.week).eq("season", proj.season).eq(
-                    "source", proj.source
-                ).execute()
+                response = (
+                    self.supabase.table("projections")
+                    .select("id")
+                    .eq("player_id", str(proj.player_id))
+                    .eq("week", proj.week)
+                    .eq("season", proj.season)
+                    .eq("source", proj.source)
+                    .execute()
+                )
 
                 projection_data = {
                     "player_id": str(proj.player_id),
@@ -275,15 +285,13 @@ class LoaderService:
 
                 if response.data and len(response.data) > 0:
                     # Update existing
-                    self.supabase.table("projections").update(
-                        projection_data
-                    ).eq("id", response.data[0]["id"]).execute()
+                    self.supabase.table("projections").update(projection_data).eq(
+                        "id", response.data[0]["id"]
+                    ).execute()
                     updated_count += 1
                 else:
                     # Insert new
-                    self.supabase.table("projections").insert(
-                        projection_data
-                    ).execute()
+                    self.supabase.table("projections").insert(projection_data).execute()
                     new_count += 1
 
             except Exception as e:
@@ -304,23 +312,29 @@ class LoaderService:
         # Test NFLVerse
         try:
             self.nflverse_loader.get_available_columns()
-            sources.append({
-                "name": "nflverse",
-                "status": "available",
-                "description": "NFLVerse historical player statistics"
-            })
+            sources.append(
+                {
+                    "name": "nflverse",
+                    "status": "available",
+                    "description": "NFLVerse historical player statistics",
+                }
+            )
         except Exception:
-            sources.append({
-                "name": "nflverse",
-                "status": "unavailable",
-                "description": "NFLVerse historical player statistics"
-            })
+            sources.append(
+                {
+                    "name": "nflverse",
+                    "status": "unavailable",
+                    "description": "NFLVerse historical player statistics",
+                }
+            )
 
         # FFDP is always available (HTTP-based)
-        sources.append({
-            "name": "ffdp",
-            "status": "available",
-            "description": "Fantasy Football Data Pros CSV files"
-        })
+        sources.append(
+            {
+                "name": "ffdp",
+                "status": "available",
+                "description": "Fantasy Football Data Pros CSV files",
+            }
+        )
 
         return sources

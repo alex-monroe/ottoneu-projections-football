@@ -3,7 +3,6 @@ Fantasy Football Data Pros (FFDP) CSV loader.
 
 Backup data source that fetches CSV files from GitHub repository.
 """
-from typing import Optional
 import pandas as pd
 import requests
 import logging
@@ -98,7 +97,9 @@ class FFDPLoader(BaseLoader):
             except requests.exceptions.Timeout as e:
                 logger.warning(f"Timeout on attempt {attempt}/{self.MAX_RETRIES}")
                 if attempt == self.MAX_RETRIES:
-                    raise LoaderError(f"Request timeout after {self.MAX_RETRIES} attempts") from e
+                    raise LoaderError(
+                        f"Request timeout after {self.MAX_RETRIES} attempts"
+                    ) from e
                 time.sleep(self.RETRY_DELAY)
 
             except requests.exceptions.RequestException as e:
@@ -153,7 +154,7 @@ class FFDPLoader(BaseLoader):
             return False
 
         # Check for some player identifier column
-        player_cols = ['Player', 'player', 'player_name', 'name']
+        player_cols = ["Player", "player", "player_name", "name"]
         has_player_col = any(col in df.columns for col in player_cols)
 
         if not has_player_col:

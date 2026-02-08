@@ -21,6 +21,7 @@ class LoaderResult:
         errors: List of error messages if any occurred
         timestamp: When the data was loaded
     """
+
     success: bool
     data: Optional[pd.DataFrame]
     source: str

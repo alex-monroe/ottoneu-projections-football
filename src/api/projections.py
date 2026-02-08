@@ -21,14 +21,20 @@ async def get_projections(
     season: int = Query(..., ge=1999, le=2030, description="NFL season year"),
     week: int = Query(..., ge=1, le=18, description="Week number"),
     scoring: str = Query(default="PPR", description="Scoring configuration name"),
-    position: Optional[str] = Query(default=None, description="Filter by position (QB, RB, WR, TE)"),
+    position: Optional[str] = Query(
+        default=None, description="Filter by position (QB, RB, WR, TE)"
+    ),
     team: Optional[str] = Query(default=None, description="Filter by team"),
-    min_points: Optional[float] = Query(default=None, description="Minimum fantasy points"),
-    sort_by: str = Query(default="fantasy_points", description="Sort field (fantasy_points, player_name)"),
+    min_points: Optional[float] = Query(
+        default=None, description="Minimum fantasy points"
+    ),
+    sort_by: str = Query(
+        default="fantasy_points", description="Sort field (fantasy_points, player_name)"
+    ),
     order: str = Query(default="desc", description="Sort order (asc, desc)"),
     limit: int = Query(default=50, ge=1, le=500, description="Number of results"),
     offset: int = Query(default=0, ge=0, description="Offset for pagination"),
-    supabase: Client = Depends(get_supabase_client)
+    supabase: Client = Depends(get_supabase_client),
 ):
     """
     Get fantasy projections with calculated points.
@@ -53,21 +59,22 @@ async def get_projections(
     """
     try:
         # Get scoring configuration
-        scoring_response = supabase.table("scoring_configs").select("*").eq(
-            "name", scoring
-        ).execute()
+        scoring_response = (
+            supabase.table("scoring_configs").select("*").eq("name", scoring).execute()
+        )
 
         if not scoring_response.data or len(scoring_response.data) == 0:
             raise HTTPException(
-                status_code=404,
-                detail=f"Scoring configuration '{scoring}' not found"
+                status_code=404, detail=f"Scoring configuration '{scoring}' not found"
             )
 
         scoring_config_data = scoring_response.data[0]
 
         # Build query for projections with player data
-        query = supabase.table("projections").select(
-            """
+        query = (
+            supabase.table("projections")
+            .select(
+                """
             id,
             week,
             season,
@@ -90,7 +97,10 @@ async def get_projections(
             updated_at,
             players(id, name, team, position)
             """
-        ).eq("season", season).eq("week", week)
+            )
+            .eq("season", season)
+            .eq("week", week)
+        )
 
         # Apply filters
         if position:
@@ -141,17 +151,21 @@ async def get_projections(
                 pass_cmp=Decimal(str(row["pass_cmp"])) if row.get("pass_cmp") else None,
                 pass_yds=Decimal(str(row["pass_yds"])) if row.get("pass_yds") else None,
                 pass_tds=Decimal(str(row["pass_tds"])) if row.get("pass_tds") else None,
-                pass_ints=Decimal(str(row["pass_ints"])) if row.get("pass_ints") else None,
+                pass_ints=Decimal(str(row["pass_ints"]))
+                if row.get("pass_ints")
+                else None,
                 rush_att=Decimal(str(row["rush_att"])) if row.get("rush_att") else None,
                 rush_yds=Decimal(str(row["rush_yds"])) if row.get("rush_yds") else None,
                 rush_tds=Decimal(str(row["rush_tds"])) if row.get("rush_tds") else None,
-                receptions=Decimal(str(row["receptions"])) if row.get("receptions") else None,
+                receptions=Decimal(str(row["receptions"]))
+                if row.get("receptions")
+                else None,
                 rec_yds=Decimal(str(row["rec_yds"])) if row.get("rec_yds") else None,
                 rec_tds=Decimal(str(row["rec_tds"])) if row.get("rec_tds") else None,
                 targets=Decimal(str(row["targets"])) if row.get("targets") else None,
                 fumbles=Decimal(str(row["fumbles"])) if row.get("fumbles") else None,
                 created_at=row.get("created_at"),
-                updated_at=row.get("updated_at")
+                updated_at=row.get("updated_at"),
             )
 
             # Calculate fantasy points
@@ -177,17 +191,19 @@ async def get_projections(
                 rush_tds=projection.rush_tds,
                 receptions=projection.receptions,
                 rec_yds=projection.rec_yds,
-                rec_tds=projection.rec_tds
+                rec_tds=projection.rec_tds,
             )
 
             projections_list.append(player_projection)
 
         # Sort results
         if sort_by == "fantasy_points":
-            reverse = (order == "desc")
-            projections_list.sort(key=lambda x: float(x.fantasy_points), reverse=reverse)
+            reverse = order == "desc"
+            projections_list.sort(
+                key=lambda x: float(x.fantasy_points), reverse=reverse
+            )
         elif sort_by == "player_name":
-            reverse = (order == "desc")
+            reverse = order == "desc"
             projections_list.sort(key=lambda x: x.player_name, reverse=reverse)
 
         # Apply pagination
@@ -207,8 +223,7 @@ async def get_projections(
     except Exception as e:
         logger.error(f"Error getting projections: {str(e)}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve projections: {str(e)}"
+            status_code=500, detail=f"Failed to retrieve projections: {str(e)}"
         )
 
 
@@ -219,7 +234,7 @@ async def get_top_players_by_position(
     week: int = Query(..., ge=1, le=18),
     scoring: str = Query(default="PPR"),
     limit: int = Query(default=20, ge=1, le=100),
-    supabase: Client = Depends(get_supabase_client)
+    supabase: Client = Depends(get_supabase_client),
 ):
     """
     Get top players by position for a given week.
@@ -243,5 +258,5 @@ async def get_top_players_by_position(
         sort_by="fantasy_points",
         order="desc",
         limit=limit,
-        supabase=supabase
+        supabase=supabase,
     )

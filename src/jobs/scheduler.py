@@ -32,11 +32,11 @@ class JobScheduler:
         # (NFL games are Sunday/Monday, data typically available by Tuesday)
         self.scheduler.add_job(
             self.weekly_import_job,
-            trigger=CronTrigger(day_of_week='tue', hour=8, minute=0, timezone='UTC'),
-            id='weekly_import',
-            name='Weekly NFL Data Import',
+            trigger=CronTrigger(day_of_week="tue", hour=8, minute=0, timezone="UTC"),
+            id="weekly_import",
+            name="Weekly NFL Data Import",
             replace_existing=True,
-            max_instances=1  # Prevent overlapping runs
+            max_instances=1,  # Prevent overlapping runs
         )
 
         self.scheduler.start()
@@ -81,18 +81,16 @@ class JobScheduler:
 
             # Import using NFLVerse as primary source
             result = await self.loader_service.import_weekly_data(
-                year=season,
-                week=week,
-                source='nflverse'
+                year=season, week=week, source="nflverse"
             )
 
             # Log result to job execution table
             await self._log_job_execution(
-                job_id='weekly_import',
-                status='success' if result.success else 'failed',
+                job_id="weekly_import",
+                status="success" if result.success else "failed",
                 result=result.model_dump(),
                 season=season,
-                week=week
+                week=week,
             )
 
             if result.success:
@@ -106,14 +104,16 @@ class JobScheduler:
         except Exception as e:
             logger.error(f"Weekly import job failed with exception: {e}", exc_info=True)
             await self._log_job_execution(
-                job_id='weekly_import',
-                status='error',
-                result={'error': str(e)},
-                season=season if 'season' in locals() else None,
-                week=week if 'week' in locals() else None
+                job_id="weekly_import",
+                status="error",
+                result={"error": str(e)},
+                season=season if "season" in locals() else None,
+                week=week if "week" in locals() else None,
             )
 
-    async def manual_import(self, year: int, week: int, source: str = 'nflverse') -> dict:
+    async def manual_import(
+        self, year: int, week: int, source: str = "nflverse"
+    ) -> dict:
         """
         Manually trigger a data import.
 
@@ -129,17 +129,15 @@ class JobScheduler:
 
         try:
             result = await self.loader_service.import_weekly_data(
-                year=year,
-                week=week,
-                source=source
+                year=year, week=week, source=source
             )
 
             await self._log_job_execution(
-                job_id='manual_import',
-                status='success' if result.success else 'failed',
+                job_id="manual_import",
+                status="success" if result.success else "failed",
                 result=result.model_dump(),
                 season=year,
-                week=week
+                week=week,
             )
 
             return result.model_dump()
@@ -147,11 +145,11 @@ class JobScheduler:
         except Exception as e:
             logger.error(f"Manual import failed: {e}", exc_info=True)
             await self._log_job_execution(
-                job_id='manual_import',
-                status='error',
-                result={'error': str(e)},
+                job_id="manual_import",
+                status="error",
+                result={"error": str(e)},
                 season=year,
-                week=week
+                week=week,
             )
             raise
 
@@ -161,7 +159,7 @@ class JobScheduler:
         status: str,
         result: dict,
         season: Optional[int] = None,
-        week: Optional[int] = None
+        week: Optional[int] = None,
     ):
         """
         Log job execution to database.
@@ -174,14 +172,16 @@ class JobScheduler:
             week: NFL week (optional)
         """
         try:
-            self.supabase.table('job_executions').insert({
-                'job_id': job_id,
-                'status': status,
-                'executed_at': datetime.now(timezone.utc).isoformat(),
-                'result': result,
-                'season': season,
-                'week': week
-            }).execute()
+            self.supabase.table("job_executions").insert(
+                {
+                    "job_id": job_id,
+                    "status": status,
+                    "executed_at": datetime.now(timezone.utc).isoformat(),
+                    "result": result,
+                    "season": season,
+                    "week": week,
+                }
+            ).execute()
             logger.debug(f"Logged job execution: {job_id} - {status}")
         except Exception as e:
             # Don't fail the job if logging fails
@@ -211,10 +211,14 @@ class JobScheduler:
         """
         jobs = []
         for job in self.scheduler.get_jobs():
-            jobs.append({
-                'id': job.id,
-                'name': job.name,
-                'next_run': job.next_run_time.isoformat() if job.next_run_time else None,
-                'trigger': str(job.trigger)
-            })
+            jobs.append(
+                {
+                    "id": job.id,
+                    "name": job.name,
+                    "next_run": job.next_run_time.isoformat()
+                    if job.next_run_time
+                    else None,
+                    "trigger": str(job.trigger),
+                }
+            )
         return jobs

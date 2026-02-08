@@ -5,7 +5,6 @@ import logging
 from contextlib import asynccontextmanager
 from datetime import datetime
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from src.config import get_settings
@@ -42,7 +41,7 @@ app = FastAPI(
     title="NFL Fantasy Football Projections API",
     description="API for managing and retrieving NFL fantasy football projections",
     version="0.1.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Templates for dashboard
@@ -54,9 +53,7 @@ async def root():
     """Root endpoint - health check."""
     settings = get_settings()
     return HealthCheck(
-        status="healthy",
-        environment=settings.environment,
-        timestamp=datetime.now()
+        status="healthy", environment=settings.environment, timestamp=datetime.now()
     )
 
 
@@ -65,17 +62,16 @@ async def health_check():
     """Health check endpoint."""
     settings = get_settings()
     return HealthCheck(
-        status="healthy",
-        environment=settings.environment,
-        timestamp=datetime.now()
+        status="healthy", environment=settings.environment, timestamp=datetime.now()
     )
 
 
 # Import and include routers
-from src.api.loaders import router as loaders_router
-from src.api.projections import router as projections_router
-from src.api.jobs import router as jobs_router, set_scheduler
-from src.dashboard.routes import router as dashboard_router
+# Note: Imports placed here to avoid circular dependencies with scheduler
+from src.api.loaders import router as loaders_router  # noqa: E402
+from src.api.projections import router as projections_router  # noqa: E402
+from src.api.jobs import router as jobs_router, set_scheduler  # noqa: E402
+from src.dashboard.routes import router as dashboard_router  # noqa: E402
 
 # Set the global scheduler instance for the jobs API
 set_scheduler(scheduler)
@@ -88,4 +84,5 @@ app.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("src.main:app", host="0.0.0.0", port=8000, reload=True)
