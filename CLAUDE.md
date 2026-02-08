@@ -191,14 +191,18 @@ All checks must pass before merging. Check results typically complete in 2-3 min
 
 ### Deployment
 
-When a PR is merged to `main`:
+After merging a PR to `main`, deploy to Fly.io:
 
-1. Render.com automatically detects the merge
-2. Installs dependencies from `requirements.txt`
-3. Starts the application with health check verification
-4. Deployment completes in ~2-3 minutes
+```bash
+flyctl deploy
+```
 
-No manual deployment steps required!
+The deployment process:
+1. Builds Docker image from Dockerfile
+2. Deploys to Fly.io with health check verification
+3. Deployment completes in ~2-3 minutes
+
+See `fly.toml` for deployment configuration.
 
 ### Branch Protection
 
