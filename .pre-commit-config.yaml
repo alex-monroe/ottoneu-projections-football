@@ -1,0 +1,44 @@
+repos:
+  # Black - Code formatter
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        language_version: python3.9
+
+  # Ruff - Fast Python linter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        args: [--fix]
+
+  # Pre-commit hooks for common issues
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # Remove trailing whitespace
+      - id: trailing-whitespace
+
+      # Ensure files end with newline
+      - id: end-of-file-fixer
+
+      # Check YAML syntax
+      - id: check-yaml
+        args: [--safe]
+
+      # Prevent large files from being committed
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+
+      # Check for merge conflict markers
+      - id: check-merge-conflict
+
+      # Check for debugger imports and breakpoints
+      - id: debug-statements
+
+      # Ensure JSON files are valid
+      - id: check-json
+
+      # Check for files that would conflict on case-insensitive filesystems
+      - id: check-case-conflict

@@ -28,10 +28,24 @@ This is a football projections system for Ottoneu fantasy football leagues. Buil
 - ✅ Fantasy points calculator with configurable scoring formats
 - ✅ Standard scoring configs (PPR, Half-PPR, Standard)
 - ✅ Projections API with filtering, sorting, pagination
-- ✅ 60 comprehensive tests passing (50 loaders + 10 scoring)
 - ✅ Support for custom scoring configurations
 
-**Next Phase: Dashboard (web UI for viewing projections)**
+**Phase 4 Complete: Dashboard**
+- ✅ Web UI routes for viewing projections
+- ✅ Jinja2 templates (base, projections, player detail, error pages)
+- ✅ Interactive filters (season, week, position, scoring format)
+- ✅ Sortable/filterable tables
+- ✅ Player detail pages
+
+**Phase 5 Complete: Automated Jobs**
+- ✅ APScheduler integration for automated data imports
+- ✅ Weekly cron job (Tuesdays 8:00 AM UTC)
+- ✅ Manual job triggers via API
+- ✅ Job management endpoints
+
+**Current Test Suite: 77 tests passing**
+
+**Project Status: Production Ready**
 
 ## Quick Start
 
@@ -71,8 +85,8 @@ pytest
 - **Database**: Supabase (PostgreSQL)
 - **Data Sources**: NFLVerse (nfl-data-py), FFDP CSV files
 - **Data Processing**: pandas for data transformation
-- **Scheduler**: APScheduler for weekly updates (future)
-- **Templates**: Jinja2 for web dashboard (future)
+- **Scheduler**: APScheduler for automated weekly imports
+- **Templates**: Jinja2 for web dashboard UI
 
 ### Directory Structure
 ```
@@ -87,11 +101,17 @@ src/
 │   ├── mapper.py        # Column mapping logic
 │   ├── service.py       # Import orchestration
 │   └── exceptions.py    # Custom exceptions
-├── scoring/             # Point calculation logic (future)
+├── scoring/             # Point calculation logic
+│   └── calculator.py    # Fantasy points calculator
 ├── api/                 # REST API endpoints
-│   └── loaders.py       # Data import endpoints
-├── dashboard/           # Web UI routes and templates (future)
-└── jobs/                # Scheduled update jobs (future)
+│   ├── loaders.py       # Data import endpoints
+│   ├── projections.py   # Projections query endpoints
+│   └── jobs.py          # Job management endpoints
+├── dashboard/           # Web UI routes and templates
+│   ├── routes.py        # Dashboard routes
+│   └── templates/       # Jinja2 HTML templates
+└── jobs/                # Scheduled update jobs
+    └── scheduler.py     # APScheduler job definitions
 ```
 
 ## Database Schema
@@ -109,6 +129,86 @@ See `src/database/schema.sql` for the full schema. Core tables:
 - **Fantasy Football Data Pros (FFDP)**: Backup CSV source from GitHub
 - **Automatic Fallback**: System tries primary source first, falls back to backup if unavailable
 - **Data Mapping**: Automatic column mapping from source formats to our database schema
+
+## Pull Request Workflow (Required)
+
+**All changes to the `main` branch must go through pull requests. Direct pushes are blocked.**
+
+### Local Development Workflow
+
+1. **Create a feature branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+2. **Make changes and run local checks**
+   ```bash
+   # Run tests
+   pytest
+
+   # Check formatting
+   black src/ tests/
+
+   # Run linting
+   ruff check src/ tests/ --fix
+
+   # Verify build
+   python -c "from src.main import app; print('✓ OK')"
+   ```
+
+3. **Commit and push**
+   ```bash
+   git add .
+   git commit -m "Brief description of changes"
+   git push -u origin feature/your-feature-name
+   ```
+
+4. **Create Pull Request on GitHub**
+   - Fill out the PR template completely
+   - Wait for automated checks to pass
+
+### Pre-Commit Hooks (Recommended)
+
+Install pre-commit hooks to catch issues before pushing:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+This automatically runs Black formatting and Ruff linting on every commit.
+
+### CI/CD Pipeline
+
+When you create a PR to `main`, GitHub Actions automatically runs:
+
+- ✅ **Tests**: All 77 tests must pass
+- ✅ **Linting**: Ruff checks for code quality issues
+- ✅ **Formatting**: Black verifies consistent code style
+- ✅ **Build Check**: Verifies application imports successfully
+
+All checks must pass before merging. Check results typically complete in 2-3 minutes.
+
+### Deployment
+
+When a PR is merged to `main`:
+
+1. Render.com automatically detects the merge
+2. Installs dependencies from `requirements.txt`
+3. Starts the application with health check verification
+4. Deployment completes in ~2-3 minutes
+
+No manual deployment steps required!
+
+### Branch Protection
+
+The `main` branch is protected with the following rules:
+
+- Cannot push directly (must use PRs)
+- All CI checks must pass
+- Branch must be up to date before merging
+
+See `CONTRIBUTING.md` for complete workflow details.
 
 ## Development Notes
 

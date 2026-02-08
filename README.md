@@ -320,12 +320,38 @@ Quick deploy to Render:
 
 ## Contributing
 
-This is a personal project, but feel free to:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests: `pytest`
-5. Submit a pull request
+**All changes must go through pull requests with automated quality checks.**
+
+### Quick Start for Contributors
+
+1. **Fork and clone the repository**
+2. **Create a feature branch**: `git checkout -b feature/your-feature-name`
+3. **Install pre-commit hooks** (optional but recommended):
+   ```bash
+   pip install pre-commit
+   pre-commit install
+   ```
+4. **Make your changes** following our code quality standards
+5. **Run local checks before pushing**:
+   ```bash
+   pytest                    # All 77 tests must pass
+   black src/ tests/         # Format code
+   ruff check src/ tests/    # Lint code
+   ```
+6. **Push and create PR**: GitHub Actions will automatically run CI checks
+7. **Merge when ready**: Render.com will auto-deploy to production
+
+### CI/CD Pipeline
+
+Every pull request automatically runs:
+- ✅ Tests (pytest with coverage)
+- ✅ Linting (Ruff)
+- ✅ Formatting (Black)
+- ✅ Build verification
+
+After merging, Render.com deploys to production in ~2-3 minutes.
+
+**See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed workflow, code standards, and testing requirements.**
 
 ## License
 
