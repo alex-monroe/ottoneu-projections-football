@@ -114,3 +114,20 @@ CREATE TRIGGER update_players_updated_at BEFORE UPDATE ON players
 
 CREATE TRIGGER update_projections_updated_at BEFORE UPDATE ON projections
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Job executions table for tracking scheduled job runs
+CREATE TABLE IF NOT EXISTS job_executions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  job_id TEXT NOT NULL,        -- 'weekly_import', 'manual_import', etc.
+  status TEXT NOT NULL,         -- 'success', 'failed', 'error'
+  executed_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  result JSONB,                 -- Job execution details (counts, errors, etc.)
+  season INTEGER,               -- NFL season (optional)
+  week INTEGER,                 -- NFL week (optional)
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_job_executions_job_id ON job_executions(job_id);
+CREATE INDEX IF NOT EXISTS idx_job_executions_status ON job_executions(status);
+CREATE INDEX IF NOT EXISTS idx_job_executions_executed_at ON job_executions(executed_at);
+CREATE INDEX IF NOT EXISTS idx_job_executions_season_week ON job_executions(season, week);

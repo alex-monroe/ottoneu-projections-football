@@ -1,0 +1,16 @@
+# Render ignore file
+.env
+.git
+.github
+.vscode
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.coverage
+htmlcov/
+venv/
+*.log
+.DS_Store
+tests/

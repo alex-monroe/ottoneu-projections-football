@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}{{ player.name }} - Player Detail{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Back Button -->
+    <div>
+        <a href="/dashboard?season={{ season }}" class="text-green-600 hover:text-green-700 font-medium">
+            ← Back to Projections
+        </a>
+    </div>
+
+    <!-- Player Header -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    {{ player.name }}
+                </h1>
+                <div class="mt-2 flex items-center space-x-4">
+                    <span class="position-badge position-{{ player.position }}">
+                        {{ player.position }}
+                    </span>
+                    <span class="text-gray-600">
+                        {{ player.team or 'Free Agent' }}
+                    </span>
+                    {% if player.status %}
+                    <span class="text-sm text-gray-500">
+                        Status: {{ player.status }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Season Selector -->
+    <div class="bg-white shadow rounded-lg p-4">
+        <form method="get" action="/dashboard/player/{{ player.id }}" class="flex items-center space-x-4">
+            <label for="season" class="text-sm font-medium text-gray-700">
+                Season:
+            </label>
+            <select name="season" id="season" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                {% for s in seasons %}
+                <option value="{{ s }}" {% if s == season %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md transition duration-150">
+                Load Season
+            </button>
+        </form>
+    </div>
+
+    <!-- Weekly Stats Table -->
+    {% if projections %}
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">
+                {{ season }} Season Stats
+            </h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Week
+                        </th>
+                        {% if scoring_configs %}
+                        {% for config in scoring_configs[:3] %}
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {{ config }}
+                        </th>
+                        {% endfor %}
+                        {% endif %}
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Pass YDS
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Pass TD
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            INT
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Rush YDS
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Rush TD
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Rec
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Rec YDS
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Rec TD
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for proj in projections %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            Week {{ proj.week }}
+                        </td>
+                        {% if scoring_configs %}
+                        {% for config in scoring_configs[:3] %}
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-green-600">
+                            {{ "%.2f"|format(proj.fantasy_points[config]) if config in proj.fantasy_points else '—' }}
+                        </td>
+                        {% endfor %}
+                        {% endif %}
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                            {{ proj.stats.pass_yds|int if proj.stats.pass_yds else '—' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                            {{ proj.stats.pass_tds|int if proj.stats.pass_tds else '—' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                            {{ proj.stats.pass_ints|int if proj.stats.pass_ints else '—' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                            {{ proj.stats.rush_yds|int if proj.stats.rush_yds else '—' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                            {{ proj.stats.rush_tds|int if proj.stats.rush_tds else '—' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                            {{ proj.stats.receptions|int if proj.stats.receptions else '—' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                            {{ proj.stats.rec_yds|int if proj.stats.rec_yds else '—' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                            {{ proj.stats.rec_tds|int if proj.stats.rec_tds else '—' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Season Totals</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {% set total_pass_yds = projections|sum(attribute='stats.pass_yds')|default(0) %}
+            {% set total_pass_tds = projections|sum(attribute='stats.pass_tds')|default(0) %}
+            {% set total_rush_yds = projections|sum(attribute='stats.rush_yds')|default(0) %}
+            {% set total_rush_tds = projections|sum(attribute='stats.rush_tds')|default(0) %}
+            {% set total_receptions = projections|sum(attribute='stats.receptions')|default(0) %}
+            {% set total_rec_yds = projections|sum(attribute='stats.rec_yds')|default(0) %}
+            {% set total_rec_tds = projections|sum(attribute='stats.rec_tds')|default(0) %}
+
+            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                <div class="text-2xl font-bold text-gray-900">{{ total_pass_yds|int }}</div>
+                <div class="text-sm text-gray-600">Pass Yards</div>
+            </div>
+            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                <div class="text-2xl font-bold text-gray-900">{{ total_pass_tds|int }}</div>
+                <div class="text-sm text-gray-600">Pass TDs</div>
+            </div>
+            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                <div class="text-2xl font-bold text-gray-900">{{ total_rush_yds|int }}</div>
+                <div class="text-sm text-gray-600">Rush Yards</div>
+            </div>
+            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                <div class="text-2xl font-bold text-gray-900">{{ total_rush_tds|int }}</div>
+                <div class="text-sm text-gray-600">Rush TDs</div>
+            </div>
+            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                <div class="text-2xl font-bold text-gray-900">{{ total_receptions|int }}</div>
+                <div class="text-sm text-gray-600">Receptions</div>
+            </div>
+            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                <div class="text-2xl font-bold text-gray-900">{{ total_rec_yds|int }}</div>
+                <div class="text-sm text-gray-600">Rec Yards</div>
+            </div>
+            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                <div class="text-2xl font-bold text-gray-900">{{ total_rec_tds|int }}</div>
+                <div class="text-sm text-gray-600">Rec TDs</div>
+            </div>
+            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                <div class="text-2xl font-bold text-gray-900">{{ projections|length }}</div>
+                <div class="text-sm text-gray-600">Games Played</div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <p class="text-yellow-800">
+            <span class="font-semibold">No stats found</span> for {{ player.name }} in the {{ season }} season.
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,174 @@
+{
+  "last_updated": "2026-02-07T21:02:37.772315",
+  "summary": {
+    "total_players": 438,
+    "total_projections": 1264,
+    "total_weeks_imported": 4
+  },
+  "seasons": {
+    "2023": {
+      "weeks_imported": 4,
+      "weeks_pending": 14,
+      "weeks": {
+        "1": {
+          "status": "imported",
+          "sources": [
+            "nflverse"
+          ]
+        },
+        "2": {
+          "status": "imported",
+          "sources": [
+            "nflverse"
+          ]
+        },
+        "3": {
+          "status": "imported",
+          "sources": [
+            "nflverse"
+          ]
+        },
+        "4": {
+          "status": "imported",
+          "sources": [
+            "nflverse"
+          ]
+        },
+        "5": {
+          "status": "pending",
+          "sources": []
+        },
+        "6": {
+          "status": "pending",
+          "sources": []
+        },
+        "7": {
+          "status": "pending",
+          "sources": []
+        },
+        "8": {
+          "status": "pending",
+          "sources": []
+        },
+        "9": {
+          "status": "pending",
+          "sources": []
+        },
+        "10": {
+          "status": "pending",
+          "sources": []
+        },
+        "11": {
+          "status": "pending",
+          "sources": []
+        },
+        "12": {
+          "status": "pending",
+          "sources": []
+        },
+        "13": {
+          "status": "pending",
+          "sources": []
+        },
+        "14": {
+          "status": "pending",
+          "sources": []
+        },
+        "15": {
+          "status": "pending",
+          "sources": []
+        },
+        "16": {
+          "status": "pending",
+          "sources": []
+        },
+        "17": {
+          "status": "pending",
+          "sources": []
+        },
+        "18": {
+          "status": "pending",
+          "sources": []
+        }
+      }
+    },
+    "2024": {
+      "weeks_imported": 0,
+      "weeks_pending": 18,
+      "weeks": {
+        "1": {
+          "status": "pending",
+          "sources": []
+        },
+        "2": {
+          "status": "pending",
+          "sources": []
+        },
+        "3": {
+          "status": "pending",
+          "sources": []
+        },
+        "4": {
+          "status": "pending",
+          "sources": []
+        },
+        "5": {
+          "status": "pending",
+          "sources": []
+        },
+        "6": {
+          "status": "pending",
+          "sources": []
+        },
+        "7": {
+          "status": "pending",
+          "sources": []
+        },
+        "8": {
+          "status": "pending",
+          "sources": []
+        },
+        "9": {
+          "status": "pending",
+          "sources": []
+        },
+        "10": {
+          "status": "pending",
+          "sources": []
+        },
+        "11": {
+          "status": "pending",
+          "sources": []
+        },
+        "12": {
+          "status": "pending",
+          "sources": []
+        },
+        "13": {
+          "status": "pending",
+          "sources": []
+        },
+        "14": {
+          "status": "pending",
+          "sources": []
+        },
+        "15": {
+          "status": "pending",
+          "sources": []
+        },
+        "16": {
+          "status": "pending",
+          "sources": []
+        },
+        "17": {
+          "status": "pending",
+          "sources": []
+        },
+        "18": {
+          "status": "pending",
+          "sources": []
+        }
+      }
+    }
+  }
+}

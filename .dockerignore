@@ -1,0 +1,24 @@
+# Fly.io Docker ignore
+.env
+.git
+.github
+.vscode
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.coverage
+htmlcov/
+venv/
+env/
+*.log
+.DS_Store
+tests/
+*.md
+!README.md
+render.yaml
+vercel.json
+Procfile
+.renderignore
+fly.toml

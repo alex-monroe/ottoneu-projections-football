@@ -2,8 +2,8 @@
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 python-dotenv==1.0.0
-pydantic==2.5.0
-pydantic-settings==2.1.0
+pydantic>=2.11.7
+pydantic-settings>=2.1.0
 
 # Database
 supabase==2.27.3
@@ -30,3 +30,6 @@ responses==0.24.1  # For mocking HTTP requests
 # Development
 black==23.11.0
 ruff==0.1.6
+
+# Deployment adapters (optional)
+mangum==0.17.0  # For Vercel/AWS Lambda serverless deployment

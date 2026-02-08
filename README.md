@@ -31,10 +31,12 @@ A FastAPI-based system for managing NFL fantasy football projections with suppor
 - Error handling and responsive design
 - 64 comprehensive tests (100% passing)
 
-### 📋 Phase 5: Automation (Planned)
-- Web UI for viewing projections
-- Player comparison tools
-- Sortable/filterable tables
+### ✅ Phase 5: Automation (Complete)
+- Scheduled weekly data imports using APScheduler
+- Automatic Tuesday 8:00 AM UTC imports
+- Job execution tracking in database
+- Job management API endpoints (status, trigger, history)
+- 82 comprehensive tests (100% passing)
 
 ### 📋 Phase 6: Advanced Features (Planned)
 - Custom projection models
@@ -120,6 +122,30 @@ curl "http://localhost:8000/api/projections?season=2023&week=1&scoring=Half-PPR&
 
 See [SCORING_GUIDE.md](SCORING_GUIDE.md) for detailed scoring documentation.
 
+### Automated Jobs (Phase 5)
+
+The application includes automated weekly data imports:
+
+```bash
+# Check job status (next run time, last execution)
+curl "http://localhost:8000/api/jobs/status"
+
+# View job execution history
+curl "http://localhost:8000/api/jobs/history?job_id=weekly_import&limit=5"
+
+# Manually trigger an import
+curl -X POST "http://localhost:8000/api/jobs/trigger" \
+  -H "Content-Type: application/json" \
+  -d '{"year": 2023, "week": 1, "source": "nflverse"}'
+```
+
+**Automated Schedule:**
+- **Every Tuesday at 8:00 AM UTC** - Automatic import of previous week's data
+- Job execution tracked in `job_executions` table
+- Automatic fallback to backup source if primary fails
+
+See [AUTOMATION_GUIDE.md](AUTOMATION_GUIDE.md) for detailed automation documentation.
+
 ### Run Tests
 
 ```bash
@@ -154,10 +180,13 @@ ottoneu-projections-football/
 │   │   ├── service.py       # Import orchestration
 │   │   └── exceptions.py    # Custom exceptions
 │   ├── api/                 # REST API endpoints
-│   │   └── loaders.py       # Data import endpoints
+│   │   ├── loaders.py       # Data import endpoints
+│   │   ├── projections.py   # Projections with scoring
+│   │   └── jobs.py          # Job management endpoints
 │   ├── scoring/             # Point calculation (Phase 3)
 │   ├── dashboard/           # Web UI (Phase 4)
 │   └── jobs/                # Scheduled tasks (Phase 5)
+│       └── scheduler.py     # APScheduler job management
 ├── tests/                   # Test suite
 │   ├── loaders/             # Loader tests
 │   └── api/                 # API tests
@@ -195,6 +224,20 @@ ottoneu-projections-football/
 - `GET /api/loaders/sources` - List available sources
 - `GET /api/loaders/available-data` - Summary of imported data
 
+### Projections
+- `GET /api/projections` - Get projections with fantasy points (supports filtering, sorting)
+- `GET /api/projections/{player_id}` - Get single player projection
+
+### Job Management (Phase 5)
+- `GET /api/jobs/status` - Get scheduled job status and next run times
+- `POST /api/jobs/trigger` - Manually trigger a data import
+- `GET /api/jobs/history` - View job execution history
+- `GET /api/jobs/history/{execution_id}` - Get specific execution details
+
+### Dashboard
+- `GET /dashboard` - Web UI for viewing projections
+- `GET /dashboard/player/{player_id}` - Player detail page
+
 See interactive API docs at http://localhost:8000/docs
 
 ## Database Schema
@@ -213,6 +256,11 @@ See interactive API docs at http://localhost:8000/docs
 **scoring_configs**
 - Fantasy scoring configurations (PPR, Standard, etc.)
 - Point values for each stat category
+
+**job_executions** (Phase 5)
+- Tracks all scheduled and manual job executions
+- Logs success/failure status and execution results
+- Indexed by job_id, status, and executed_at
 
 **calculated_points** (future)
 - Pre-calculated fantasy points cache
@@ -255,6 +303,20 @@ ENVIRONMENT=development
 - **Data Sources**: nfl-data-py 0.3.2
 - **Testing**: pytest 7.4.3
 - **Python**: 3.9+
+
+## Deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions to:
+- Render.com (recommended)
+- Railway.app
+- Fly.io
+- Vercel (not recommended for FastAPI)
+
+Quick deploy to Render:
+1. Push code to GitHub
+2. Connect repository to Render
+3. Set environment variables (SUPABASE_URL, SUPABASE_KEY)
+4. Deploy automatically uses `render.yaml` configuration
 
 ## Contributing
 

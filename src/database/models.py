@@ -171,3 +171,37 @@ class DataSourceInfo(BaseModel):
     name: str
     status: str  # 'available' or 'unavailable'
     description: str
+
+
+class JobExecutionBase(BaseModel):
+    """Base job execution model."""
+    job_id: str
+    status: str  # 'success', 'failed', 'error'
+    executed_at: datetime
+    result: Optional[dict] = None
+    season: Optional[int] = None
+    week: Optional[int] = None
+
+
+class JobExecution(JobExecutionBase):
+    """Full job execution model with database fields."""
+    id: UUID
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class JobStatus(BaseModel):
+    """Status of a scheduled job."""
+    job_id: str
+    name: str
+    next_run: Optional[datetime] = None
+    trigger: str
+    last_execution: Optional[JobExecution] = None
+
+
+class JobTriggerRequest(BaseModel):
+    """Request to manually trigger a job."""
+    year: int = Field(..., ge=1999, le=2030)
+    week: int = Field(..., ge=1, le=18)
+    source: str = Field(default="nflverse")
