@@ -1,0 +1,28 @@
+# Core framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-dotenv==1.0.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Database
+supabase==2.3.0
+
+# Data sources
+espn-api==0.35.0
+
+# Scheduling
+APScheduler==3.10.4
+
+# Templates
+jinja2==3.1.2
+
+# Testing
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-asyncio==0.21.1
+httpx==0.24.1  # For testing FastAPI (compatible with supabase)
+
+# Development
+black==23.11.0
+ruff==0.1.6
