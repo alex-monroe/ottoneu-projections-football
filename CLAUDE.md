@@ -191,18 +191,27 @@ All checks must pass before merging. Check results typically complete in 2-3 min
 
 ### Deployment
 
-After merging a PR to `main`, deploy to Fly.io:
+**Automatic Deployment:**
+When a PR is merged to `main`, GitHub Actions automatically deploys to Fly.io.
 
+The deployment process:
+1. Triggers on push to main branch
+2. Builds Docker image from Dockerfile
+3. Deploys to Fly.io with health check verification
+4. Deployment completes in ~2-3 minutes
+
+**Manual Deployment:**
+You can also deploy manually:
 ```bash
 flyctl deploy
 ```
 
-The deployment process:
-1. Builds Docker image from Dockerfile
-2. Deploys to Fly.io with health check verification
-3. Deployment completes in ~2-3 minutes
+**Configuration:**
+- Workflow: `.github/workflows/deploy.yml`
+- App config: `fly.toml`
+- Requires: `FLY_API_TOKEN` secret in GitHub repository settings
 
-See `fly.toml` for deployment configuration.
+See "Setup" section below for configuring the deployment token.
 
 ### Branch Protection
 
@@ -213,6 +222,38 @@ The `main` branch is protected with the following rules:
 - Branch must be up to date before merging
 
 See `CONTRIBUTING.md` for complete workflow details.
+
+## Deployment Setup
+
+### Configuring Automatic Deployment to Fly.io
+
+To enable automatic deployment when PRs are merged to main:
+
+1. **Get your Fly.io API token**:
+   ```bash
+   flyctl auth token
+   ```
+
+2. **Add token to GitHub Secrets**:
+   - Go to your GitHub repository
+   - Navigate to Settings → Secrets and variables → Actions
+   - Click "New repository secret"
+   - Name: `FLY_API_TOKEN`
+   - Value: Paste the token from step 1
+   - Click "Add secret"
+
+3. **Verify deployment workflow**:
+   - The workflow is already configured in `.github/workflows/deploy.yml`
+   - It triggers automatically on push to main
+   - Can also be triggered manually from the Actions tab
+
+4. **Test the deployment**:
+   - Merge a PR to main
+   - Go to the Actions tab in GitHub
+   - Watch the "Deploy to Fly.io" workflow run
+   - Verify deployment: `flyctl status`
+
+**Important:** The `FLY_API_TOKEN` secret is required for deployment to work. Without it, the deployment workflow will fail.
 
 ## Development Notes
 

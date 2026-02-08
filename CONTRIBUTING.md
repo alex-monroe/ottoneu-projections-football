@@ -133,8 +133,9 @@ All changes must go through pull requests. Direct pushes to `main` are blocked.
 
 8. **Merge when ready**
    - Once all checks pass, click "Merge pull request"
-   - Deploy to Fly.io manually using: `flyctl deploy`
+   - GitHub Actions automatically deploys to Fly.io
    - Deployment takes ~2-3 minutes
+   - Monitor deployment: `flyctl status` or check GitHub Actions tab
 
 ---
 

@@ -345,7 +345,7 @@ Alternative platforms: See [DEPLOYMENT.md](DEPLOYMENT.md) for Railway.app, Rende
    ruff check src/ tests/    # Lint code
    ```
 6. **Push and create PR**: GitHub Actions will automatically run CI checks
-7. **Merge when ready**, then deploy: `flyctl deploy`
+7. **Merge when ready**: Deployment to Fly.io happens automatically
 
 ### CI/CD Pipeline
 
@@ -355,7 +355,7 @@ Every pull request automatically runs:
 - ✅ Formatting (Black)
 - ✅ Build verification
 
-After merging, deploy to Fly.io with `flyctl deploy` (~2-3 minutes).
+After merging, GitHub Actions automatically deploys to Fly.io (~2-3 minutes).
 
 **See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed workflow, code standards, and testing requirements.**
 
