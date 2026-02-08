@@ -42,10 +42,12 @@ async def health_check():
     )
 
 
-# Import and include routers (will be added in Phase 2-4)
-# from src.api.routes import router as api_router
+# Import and include routers
+from src.api.loaders import router as loaders_router
+app.include_router(loaders_router, prefix="/api", tags=["api"])
+
+# Dashboard router will be added in Phase 4
 # from src.dashboard.routes import router as dashboard_router
-# app.include_router(api_router, prefix="/api", tags=["api"])
 # app.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
 
 

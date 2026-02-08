@@ -16,7 +16,15 @@ This is a football projections system for Ottoneu fantasy football leagues. Buil
 - ✅ Test framework configured with pytest
 - ✅ Virtual environment and dependencies installed
 
-**Next Phase: Data Collection (ESPN scraper, player management)**
+**Phase 2 Complete: Data Collection**
+- ✅ Data loaders for NFLVerse (nfl-data-py) and FFDP CSV sources
+- ✅ Automatic fallback from primary to backup source
+- ✅ Column mapping from various data sources to database schema
+- ✅ Service layer for data import orchestration
+- ✅ API endpoints for triggering data imports
+- ✅ Comprehensive test suite (50 tests passing)
+
+**Next Phase: Scoring System (calculate fantasy points from raw stats)**
 
 ## Quick Start
 
@@ -54,9 +62,10 @@ pytest
 ### Tech Stack
 - **Backend**: FastAPI (Python 3.9+)
 - **Database**: Supabase (PostgreSQL)
-- **Data Sources**: ESPN API (via espn-api package)
-- **Scheduler**: APScheduler for weekly updates
-- **Templates**: Jinja2 for web dashboard
+- **Data Sources**: NFLVerse (nfl-data-py), FFDP CSV files
+- **Data Processing**: pandas for data transformation
+- **Scheduler**: APScheduler for weekly updates (future)
+- **Templates**: Jinja2 for web dashboard (future)
 
 ### Directory Structure
 ```
@@ -64,11 +73,18 @@ src/
 ├── main.py              # FastAPI app entry point
 ├── config.py            # Environment config & Supabase client
 ├── database/            # Schema and Pydantic models
-├── scrapers/            # Data collection (ESPN, etc.)
-├── scoring/             # Point calculation logic
+├── loaders/             # Data loading from various sources
+│   ├── base.py          # Base loader interface
+│   ├── nflverse.py      # NFLVerse (primary source)
+│   ├── ffdp.py          # Fantasy Data Pros (backup)
+│   ├── mapper.py        # Column mapping logic
+│   ├── service.py       # Import orchestration
+│   └── exceptions.py    # Custom exceptions
+├── scoring/             # Point calculation logic (future)
 ├── api/                 # REST API endpoints
-├── dashboard/           # Web UI routes and templates
-└── jobs/                # Scheduled update jobs
+│   └── loaders.py       # Data import endpoints
+├── dashboard/           # Web UI routes and templates (future)
+└── jobs/                # Scheduled update jobs (future)
 ```
 
 ## Database Schema
@@ -82,8 +98,10 @@ See `src/database/schema.sql` for the full schema. Core tables:
 
 ## Data Sources
 
-- **ESPN Fantasy API**: Primary source via `espn-api` Python package
-- **Future**: FantasyPros, nfl_data_py for historical data
+- **NFLVerse (nfl-data-py)**: Primary source - historical NFL player statistics
+- **Fantasy Football Data Pros (FFDP)**: Backup CSV source from GitHub
+- **Automatic Fallback**: System tries primary source first, falls back to backup if unavailable
+- **Data Mapping**: Automatic column mapping from source formats to our database schema
 
 ## Development Notes
 

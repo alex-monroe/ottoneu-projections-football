@@ -10,6 +10,8 @@ supabase==2.3.0
 
 # Data sources
 espn-api==0.35.0
+nfl-data-py==0.3.2
+pandas==2.1.3
 
 # Scheduling
 APScheduler==3.10.4
@@ -22,6 +24,7 @@ pytest==7.4.3
 pytest-cov==4.1.0
 pytest-asyncio==0.21.1
 httpx==0.24.1  # For testing FastAPI (compatible with supabase)
+responses==0.24.1  # For mocking HTTP requests
 
 # Development
 black==23.11.0

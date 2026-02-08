@@ -143,3 +143,31 @@ class HealthCheck(BaseModel):
     status: str
     environment: str
     timestamp: datetime
+
+
+class ImportRequest(BaseModel):
+    """Request model for importing data."""
+    year: int = Field(..., ge=1999, le=2030, description="NFL season year")
+    week: int = Field(..., ge=1, le=18, description="Week number")
+    source: str = Field(default="nflverse", description="Data source name")
+
+
+class ImportResultModel(BaseModel):
+    """Result of a data import operation."""
+    success: bool
+    players_imported: int
+    players_updated: int
+    projections_imported: int
+    projections_updated: int
+    source: str
+    year: int
+    week: int
+    errors: list[str]
+    timestamp: datetime
+
+
+class DataSourceInfo(BaseModel):
+    """Information about a data source."""
+    name: str
+    status: str  # 'available' or 'unavailable'
+    description: str
